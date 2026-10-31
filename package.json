@@ -1,0 +1,48 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@colyseus/react": "^0.18.4",
+    "@colyseus/schema": "^5.0.43",
+    "@colyseus/sdk": "^0.18.9",
+    "@dimforge/rapier3d-compat": "^0.21.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.5.0",
+    "@mui/material": "^9.5.0",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "@react-three/postprocessing": "^3.2.2",
+    "@react-three/rapier": "^2.2.0",
+    "@react-three/xr": "^6.6.32",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/three": "^0.187.0",
+    "motion": "^14.9.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-qr-code": "^2.2.0",
+    "react-router-dom": "^7.18.5",
+    "tailwindcss": "^4.3.3",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "oxlint": "^1.89.0",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.5"
+  },
+  "allowScripts": {
+    "msgpackr-extract@3.0.4": true
+  }
+}
