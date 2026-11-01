@@ -25,6 +25,7 @@
     "@react-three/xr": "^6.6.32",
     "@tailwindcss/vite": "^4.3.3",
     "@types/three": "^0.187.0",
+    "dayjs": "^1.11.23",
     "motion": "^14.9.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

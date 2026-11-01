@@ -1,0 +1,241 @@
+{
+    "properties": [
+        {
+            "id": "mediterranean-avenue",
+            "name": "Mediterranean\nAvenue",
+            "group": "BROWN",
+            "position": [6, 0, 7.75]
+        },
+        {
+            "id": "baltic-avenue",
+            "name": "Baltic\nAvenue",
+            "group": "BROWN",
+            "position": [3, 0, 7.75]
+        },
+        {
+            "id": "oriental-avenue",
+            "name": "Oriental\nAvenue",
+            "group": "CYAN",
+            "position": [-1.5, 0, 7.75]
+        },
+        {
+            "id": "vermont-avenue",
+            "name": "Vermont\nAvenue",
+            "group": "CYAN",
+            "position": [-4.5, 0, 7.75]
+        },
+        {
+            "id": "connecticut-avenue",
+            "name": "Connecticut\nAvenue",
+            "group": "CYAN",
+            "position": [-6, 0, 7.75]
+        },
+        {
+            "id": "st-charles-place",
+            "name": "St. Charles\nPlace",
+            "group": "PINK",
+            "position": [-7.75, 0, 6],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "states-avenue",
+            "name": "States\nAvenue",
+            "group": "PINK",
+            "position": [-7.75, 0, 3],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "virginia-avenue",
+            "name": "Virginia\nAvenue",
+            "group": "PINK",
+            "position": [-7.75, 0, 1.5],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "st-james-place",
+            "name": "St. James\nPlace",
+            "group": "ORANGE",
+            "position": [-7.75, 0, -1.5],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "tennessee-avenue",
+            "name": "Tennessee\nAvenue",
+            "group": "ORANGE",
+            "position": [-7.75, 0, -4.5],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "new-york-avenue",
+            "name": "New York\nAvenue",
+            "group": "ORANGE",
+            "position": [-7.75, 0, -6],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "kentucky-avenue",
+            "name": "Kentucky\nAvenue",
+            "group": "RED",
+            "position": [-6, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "indiana-avenue",
+            "name": "Indiana\nAvenue",
+            "group": "RED",
+            "position": [-3, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "illinois-avenue",
+            "name": "Illinois\nAvenue",
+            "group": "RED",
+            "position": [-1.5, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "atlantic-avenue",
+            "name": "Atlantic\nAvenue",
+            "group": "YELLOW",
+            "position": [1.5, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "ventnor-avenue",
+            "name": "Ventnor\nAvenue",
+            "group": "YELLOW",
+            "position": [3, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "marvin-gardens",
+            "name": "Marvin Gardens",
+            "group": "YELLOW",
+            "position": [6, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "pacific-avenue",
+            "name": "Pacific\nAvenue",
+            "group": "GREEN",
+            "position": [7.75, 0, -6],
+            "rotation": [0, 1.5708, 0]
+        },
+        {
+            "id": "north-carolina-avenue",
+            "name": "North Carolina\nAvenue",
+            "group": "GREEN",
+            "position": [7.75, 0, -4.5],
+            "rotation": [0, 1.5708, 0]
+        },
+        {
+            "id": "pennsylvania-avenue",
+            "name": "Pennsylvania\nAvenue",
+            "group": "GREEN",
+            "position": [7.75, 0, -1.5],
+            "rotation": [0, 1.5708, 0]
+        },
+        {
+            "id": "park-place",
+            "name": "Park\nPlace",
+            "group": "BLUE",
+            "position": [7.75, 0, 3],
+            "rotation": [0, 1.5708, 0]
+        },
+        {
+            "id": "boardwalk",
+            "name": "Boardwalk",
+            "group": "BLUE",
+            "position": [7.75, 0, 6],
+            "rotation": [0, 1.5708, 0]
+        }
+    ],
+    "railroads": [
+        {
+            "id": "reading-railroad",
+            "name": "Reading\nRailroad",
+            "position": [0, 0, 7.75]
+        },
+        {
+            "id": "pennsylvania-railroad",
+            "name": "Pennsylvania\nRailroad",
+            "position": [-7.75, 0, 0],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "b&o-railroad",
+            "name": "B. & O.\nRailroad",
+            "position": [0, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "short-line",
+            "name": "Short Line",
+            "position": [7.75, 0, 0],
+            "rotation": [0, 1.5708, 0]
+        }
+    ],
+    "utilities": [
+        {
+            "id": "electric-company",
+            "name": "Electric\nCompany",
+            "type": "ELECTRIC",
+            "position": [-7.75, 0, 4.5],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "water-works",
+            "name": "Water\nWorks",
+            "type": "WATER",
+            "position": [4.5, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        }
+    ],
+    "taxes": [
+        {
+            "id": "income-tax",
+            "name": "Income Tax",
+            "position": [1.5, 0, 7.75],
+            "taxValue": 200
+        },
+        {
+            "id": "luxury-tax",
+            "name": "Luxury Tax",
+            "position": [7.75, 0, 4.5],
+            "rotation": [0, 1.5708, 0],
+            "taxValue": 100
+        }
+    ],
+    "chests": [
+        {
+            "id": "community-chest-1",
+            "position": [4.5, 0, 7.75]
+        },
+        {
+            "id": "community-chest-2",
+            "position": [-7.75, 0, -3],
+            "rotation": [0, -1.5708, 0]
+        },
+        {
+            "id": "community-chest-3",
+            "position": [7.75, 0, -3],
+            "rotation": [0, 1.5708, 0]
+        }
+    ],
+    "chances": [
+        {
+            "id": "chance-1",
+            "position": [-3, 0, 7.75]
+        },
+        {
+            "id": "chance-2",
+            "position": [-4.5, 0, -7.75],
+            "rotation": [0, -3.1416, 0]
+        },
+        {
+            "id": "chance-3",
+            "position": [7.75, 0, 1.5],
+            "rotation": [0, 1.5708, 0]
+        }
+    ]
+}
