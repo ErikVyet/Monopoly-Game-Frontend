@@ -4,12 +4,13 @@ import { blue, brown, green, grey, orange, pink, red, yellow } from "@mui/materi
 import { Center, Edges, Float, Html, Text, Text3D, useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody } from "@react-three/rapier";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimationClip, Euler, Mesh, MeshStandardMaterial, type Group } from "three";
 import { Group as SpaceGroup } from "../../constants/Group";
 import type { GLTF } from "three-stdlib";
 import { Box, Stack, Typography } from "@mui/material";
 import { properties, railroads, utilities, taxes, chests, chances } from "../../assets/data/board.json";
+import { sidewalks, plazaPavings, roadStraights, roadCorners, crosswalks, trafficLights } from "../../assets/data/scenery.json";
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -76,19 +77,19 @@ export function SkyDome() {
 function StartLine() {
     return (
         <RigidBody type={"fixed"} colliders={"hull"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <mesh position={[-1, 0.85, -1]}>
+            <mesh position={[-1, 0.85, -1]} receiveShadow castShadow>
                 <cylinderGeometry args={[0.06, 0.06, 1.5, 32]} />
                 <meshStandardMaterial color={grey[100]} metalness={0.8} roughness={0.2}/>
                 <Edges color={"black"} lineWidth={1.5}/>
             </mesh>
-            <mesh position={[-1, 1.4, 0]}>
+            <mesh position={[-1, 1.4, 0]} receiveShadow castShadow>
                 <boxGeometry args={[0.05, 0.35, 1.9]} />
                 <meshStandardMaterial color={blue[400]} metalness={0.2} roughness={0.2}/>
                 <Text font={"/fonts/Fredoka-Regular.ttf"} fontSize={0.2} position={[-0.026, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>Start</Text>
                 <Text font={"/fonts/Fredoka-Regular.ttf"} fontSize={0.2} position={[0.026, 0, 0]} rotation={[0, Math.PI / 2, 0]}>Start</Text>
                 <Edges color={"black"} lineWidth={1.5}/>
             </mesh>
-            <mesh position={[-1, 0.85, 1]}>
+            <mesh position={[-1, 0.85, 1]} receiveShadow castShadow>
                 <cylinderGeometry args={[0.06, 0.06, 1.5, 32]} />
                 <meshStandardMaterial color={grey[100]} metalness={0.8} roughness={0.2}/>
                 <Edges color={"black"} lineWidth={1.5}/>
@@ -102,19 +103,19 @@ function StartLine() {
 function FinishLine() {
     return (
         <RigidBody type={"fixed"} colliders={"hull"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <mesh position={[1, 0.85, -1]}>
+            <mesh position={[1, 0.85, -1]} receiveShadow castShadow>
                 <cylinderGeometry args={[0.06, 0.06, 1.5, 32]} />
                 <meshStandardMaterial color={grey[100]} metalness={0.8} roughness={0.2}/>
                 <Edges color={"black"} lineWidth={1.5}/>
             </mesh>
-            <mesh position={[0, 1.4, -1]}>
+            <mesh position={[0, 1.4, -1]} receiveShadow castShadow>
                 <boxGeometry args={[1.9, 0.35, 0.05]} />
                 <meshStandardMaterial color={red[400]} metalness={0.2} roughness={0.2}/>
                 <Text font={"/fonts/Fredoka-Regular.ttf"} fontSize={0.2} position={[0, 0, -0.026]} rotation={[0, Math.PI, 0]}>Finish</Text>
                 <Text font={"/fonts/Fredoka-Regular.ttf"} fontSize={0.2} position={[0, 0, 0.026]} rotation={[0, -Math.PI * 2, 0]}>Finish</Text>
                 <Edges color={"black"} lineWidth={1.5}/>
             </mesh>
-            <mesh position={[-1, 0.85, -1]}>
+            <mesh position={[-1, 0.85, -1]} receiveShadow castShadow>
                 <cylinderGeometry args={[0.06, 0.06, 1.5, 32]} />
                 <meshStandardMaterial color={grey[100]} metalness={0.8} roughness={0.2}/>
                 <Edges color={"black"} lineWidth={1.5}/>
@@ -148,7 +149,7 @@ function Chest() {
     const { actions } = useAnimations(animations, chestRef);
 
     useEffect(() => {
-        actions?.["ChestBodyChest_Shake"].reset().fadeIn(1).play();
+        actions?.["ChestBodyChest_Shake"]?.reset().fadeIn(1).play();
     }, [actions]);
 
     return (
@@ -161,10 +162,10 @@ function Chest() {
                                 <group name="RootNode">
                                     <group name="ChestBody">
                                         <group name="Chest_Up" position={[0, 45.788, 26.662]}>
-                                            <mesh name="Chest_Up_Material001_0" geometry={nodes.Chest_Up_Material001_0.geometry} material={materials['Material.001']} />
+                                            <mesh name="Chest_Up_Material001_0" geometry={nodes.Chest_Up_Material001_0.geometry} material={materials['Material.001']} castShadow/>
                                         </group>
                                         <group name="Chest_Bottom">
-                                            <mesh name="Chest_Bottom_Material001_0" geometry={nodes.Chest_Bottom_Material001_0.geometry} material={materials['Material.001']} />
+                                            <mesh name="Chest_Bottom_Material001_0" geometry={nodes.Chest_Bottom_Material001_0.geometry} material={materials['Material.001']} castShadow/>
                                         </group>
                                     </group>
                                 </group>
@@ -218,29 +219,29 @@ function Bank() {
         <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
             <group position={[0, 0.13, -1.89]} rotation={[0, -Math.PI / 2, 0]} scale={0.0012}>
                 <group position={[562.027, 128.547, 586.928]} rotation={[-Math.PI / 2, 0, 0]} scale={[98.072, 118.406, 98.072]}>
-                    <mesh geometry={nodes.piante_terra_0.geometry} material={materials.terra} />
-                    <mesh geometry={nodes.piante_vasi_0.geometry} material={materials.vasi} />
+                    <mesh geometry={nodes.piante_terra_0.geometry} material={materials.terra} castShadow />
+                    <mesh geometry={nodes.piante_vasi_0.geometry} material={materials.vasi} castShadow />
                 </group>
                 <group position={[562.027, 128.547, -588.181]} rotation={[-Math.PI / 2, 0, 0]} scale={[98.072, 118.406, 98.072]}>
-                    <mesh geometry={nodes.piante001_terra_0.geometry} material={materials.terra} />
-                    <mesh geometry={nodes.piante001_vasi_0.geometry} material={materials.vasi} />
+                    <mesh geometry={nodes.piante001_terra_0.geometry} material={materials.terra} castShadow />
+                    <mesh geometry={nodes.piante001_vasi_0.geometry} material={materials.vasi} castShadow />
                 </group>
-                <mesh geometry={nodes.cespugli_foglie_0.geometry} material={materials.foglie} position={[560.182, 182, 587.864]} rotation={[-Math.PI / 2, 0, 0]} scale={[98.072, 118.406, 129.266]} />
-                <mesh geometry={nodes.cespugli001_foglie_0.geometry} material={materials.foglie} position={[560.182, 182, -587.245]} rotation={[-Math.PI / 2, 0, 0]} scale={[98.072, 118.406, 129.266]} />
-                <mesh geometry={nodes.colonna_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 297.701, 205.066]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} />
-                <mesh geometry={nodes.colonna001_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 291.946, -207.444]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} />
-                <mesh geometry={nodes.colonna002_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 297.701, 463.866]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} />
-                <mesh geometry={nodes.colonna003_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 297.701, -496.73]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} />
-                <mesh geometry={nodes.Cube_TEXTURE_0.geometry} material={materials.TEXTURE} position={[434.989, 655.381, -11.492]} rotation={[-Math.PI / 2, 0, 0]} scale={[136.325, 111.397, 111.397]} />
-                <mesh geometry={nodes.GRADINI_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 302.47, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
-                <mesh geometry={nodes.SERRAMENTI_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 302.47, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
-                <mesh geometry={nodes.struttura_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 302.47, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
-                <mesh geometry={nodes.TETTOIA_TEXTURE_0.geometry} material={materials.TEXTURE} position={[459.951, 658.943, -28.117]} rotation={[-Math.PI / 2, 0, 0]} scale={[136.325, 111.397, 111.397]} />
-                <mesh geometry={nodes.TETTU_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 296.715, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
-                <mesh geometry={nodes.Text_TEXTURE_0.geometry} material={materials.TEXTURE} position={[568.401, 672.237, 208.965]} rotation={[0, Math.PI / 2, 0]} scale={112.846} />
-                <mesh geometry={nodes.Text001_TEXTURE_0.geometry} material={materials.TEXTURE} position={[301.659, 1004.683, 43.544]} rotation={[0, 1.571, 0]} scale={176.406} />
-                <mesh geometry={nodes.VETRI_FINESTRE_VETRI_0.geometry} material={materials.VETRI} position={[0, 296.715, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
-                <mesh geometry={nodes.VETRI_PORTA_VETRI_0.geometry} material={materials.VETRI} position={[0, 296.715, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+                <mesh geometry={nodes.cespugli_foglie_0.geometry} material={materials.foglie} position={[560.182, 182, 587.864]} rotation={[-Math.PI / 2, 0, 0]} scale={[98.072, 118.406, 129.266]} castShadow />
+                <mesh geometry={nodes.cespugli001_foglie_0.geometry} material={materials.foglie} position={[560.182, 182, -587.245]} rotation={[-Math.PI / 2, 0, 0]} scale={[98.072, 118.406, 129.266]} castShadow />
+                <mesh geometry={nodes.colonna_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 297.701, 205.066]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} castShadow />
+                <mesh geometry={nodes.colonna001_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 291.946, -207.444]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} castShadow />
+                <mesh geometry={nodes.colonna002_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 297.701, 463.866]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} castShadow />
+                <mesh geometry={nodes.colonna003_TEXTURE_0.geometry} material={materials.TEXTURE} position={[492.584, 297.701, -496.73]} rotation={[-Math.PI / 2, 0, 0]} scale={[121.442, 121.442, 100]} castShadow />
+                <mesh geometry={nodes.Cube_TEXTURE_0.geometry} material={materials.TEXTURE} position={[434.989, 655.381, -11.492]} rotation={[-Math.PI / 2, 0, 0]} scale={[136.325, 111.397, 111.397]} castShadow />
+                <mesh geometry={nodes.GRADINI_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 302.47, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} castShadow receiveShadow/>
+                <mesh geometry={nodes.SERRAMENTI_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 302.47, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} castShadow />
+                <mesh geometry={nodes.struttura_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 302.47, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} castShadow receiveShadow/>
+                <mesh geometry={nodes.TETTOIA_TEXTURE_0.geometry} material={materials.TEXTURE} position={[459.951, 658.943, -28.117]} rotation={[-Math.PI / 2, 0, 0]} scale={[136.325, 111.397, 111.397]} castShadow />
+                <mesh geometry={nodes.TETTU_TEXTURE_0.geometry} material={materials.TEXTURE} position={[0, 296.715, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} castShadow />
+                <mesh geometry={nodes.Text_TEXTURE_0.geometry} material={materials.TEXTURE} position={[568.401, 672.237, 208.965]} rotation={[0, Math.PI / 2, 0]} scale={112.846} castShadow />
+                <mesh geometry={nodes.Text001_TEXTURE_0.geometry} material={materials.TEXTURE} position={[301.659, 1004.683, 43.544]} rotation={[0, 1.571, 0]} scale={176.406} castShadow receiveShadow/>
+                <mesh geometry={nodes.VETRI_FINESTRE_VETRI_0.geometry} material={materials.VETRI} position={[0, 296.715, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} castShadow receiveShadow/>
+                <mesh geometry={nodes.VETRI_PORTA_VETRI_0.geometry} material={materials.VETRI} position={[0, 296.715, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={100} castShadow receiveShadow/>
             </group>
         </RigidBody>
     )
@@ -271,7 +272,7 @@ function MetroEntrance() {
 
     return (
         <RigidBody position={[0, 0.13, -1.315]} scale={0.35} type={"fixed"} colliders={"hull"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <mesh geometry={(nodes["metro_entrance_01"] as Mesh).geometry} material={materials["lowpoly"]}/>
+            <mesh geometry={(nodes["metro_entrance_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow/>
         </RigidBody>
     );
 }
@@ -297,11 +298,11 @@ function Jail() {
         <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
             <group position={[0.5, 0.105, -0.5]} rotation={[-Math.PI / 2, 0, 0]} scale={0.004}>
                 <group rotation={[Math.PI / 2, 0, 0]}>
-                    <mesh position={[-98, 0, 10]} rotation={[0, Math.PI / 4, 0]} geometry={nodes.defaultMaterial.geometry} material={materials.openPBR_shader1} />
-                    <mesh geometry={nodes.defaultMaterial_1.geometry} material={materials.openPBR_shader1} />
-                    <mesh geometry={nodes.defaultMaterial_2.geometry} material={materials.openPBR_shader1} />
-                    <mesh geometry={nodes.defaultMaterial_3.geometry} material={materials.openPBR_shader1} />
-                    <mesh geometry={nodes.defaultMaterial_4.geometry} material={materials.openPBR_shader1} />
+                    <mesh position={[-98, 0, 10]} rotation={[0, Math.PI / 4, 0]} geometry={nodes.defaultMaterial.geometry} material={materials.openPBR_shader1} castShadow receiveShadow/>
+                    <mesh geometry={nodes.defaultMaterial_1.geometry} material={materials.openPBR_shader1} castShadow receiveShadow/>
+                    <mesh geometry={nodes.defaultMaterial_2.geometry} material={materials.openPBR_shader1} castShadow receiveShadow/>
+                    <mesh geometry={nodes.defaultMaterial_3.geometry} material={materials.openPBR_shader1} castShadow receiveShadow/>
+                    <mesh geometry={nodes.defaultMaterial_4.geometry} material={materials.openPBR_shader1} castShadow receiveShadow/>
                 </group>
             </group>
         </RigidBody>
@@ -315,8 +316,158 @@ function WaterTower({ position, rotation = [0, 0, 0] }: BuildingCommonProps) {
 
     return (
         <RigidBody type={"fixed"} colliders={"hull"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <mesh geometry={(nodes["Object_84"] as Mesh).geometry} material={materials["LPMW-MaHa-_CityAssetPack"]} position={position} rotation={rotation} scale={0.25}/>
+            <mesh geometry={(nodes["Object_84"] as Mesh).geometry} material={materials["LPMW-MaHa-_CityAssetPack"]} position={position} rotation={rotation} scale={0.25} receiveShadow castShadow/>
         </RigidBody>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+type TrafficLightProps = {
+    name?: string,
+    duration?: [redLightDuration: number, yellowLightDuration: number, greenLightDuration: number]
+}
+
+type GLTFTrafficLightResult = GLTF & {
+    nodes: {
+        tl_galv: Mesh
+        tl_conc: Mesh
+        tl_steelDark: Mesh
+        tl_bolt: Mesh
+        tl_plateYel: Mesh
+        tl_rubber: Mesh
+        tl_reflect: Mesh
+        tl_reflectY: Mesh
+        tl_boardBlk: Mesh
+        tl_boardWht: Mesh
+        tl_body: Mesh
+        tl_cavity: Mesh
+        tl_ledRedLit: Mesh
+        tl_lensRed: Mesh
+        tl_hood: Mesh
+        tl_ledAmbOff: Mesh
+        tl_lensAmb: Mesh
+        tl_ledGrnOff: Mesh
+        tl_lensGrn: Mesh
+        tl_plateWht: Mesh
+        tl_plateBlk: Mesh
+        tl_figRedOff: Mesh
+        tl_figGrnLit: Mesh
+        tl_segLit: Mesh
+        tl_segOff: Mesh
+        tl_lensPed: Mesh
+        tl_pbBody: Mesh
+        tl_pbPanel: Mesh
+        tl_pbLegend: Mesh
+        tl_pbBtn: Mesh
+        tl_cab: Mesh
+        tl_cabDark: Mesh
+        tl_brass: Mesh
+        tl_tar: Mesh
+    }
+    materials: {}
+}
+
+function TrafficLight({ name, position, rotation = [0, 0, 0], duration = [15, 3, 15] }: OtherCommonProps & TrafficLightProps) {
+    const { nodes } = useGLTF('/models/others/traffic-light.glb') as unknown as GLTFTrafficLightResult;
+    
+    const [light, setLight] = useState<"red" | "yellow" | "green">("green");
+
+    useEffect(() => {
+        let timer = 0;
+        const triggerTimer = {
+            GREEN: duration[2],
+            YELLOW: duration[2] + duration[1],
+            RED: duration[2] + duration[1] + duration[0]
+        };
+        const interval = setInterval(() => {
+            timer++;
+            setLight(() => {
+                if (timer <= triggerTimer.GREEN) {
+                    return "green";
+                }
+                else if (timer <= triggerTimer.YELLOW) {
+                    return "yellow"
+                }
+                else if (timer <= triggerTimer.RED) {
+                    return "red";
+                }
+                else {
+                    timer = 0;
+                    return "green";
+                }
+            });
+        }, 1000);
+
+        return () => { clearInterval(interval); }
+    }, []);
+
+    return (
+        <group position={position} rotation={rotation} scale={0.15}>
+            <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                <group position={[-0.315, 0.69, -0.08]}>
+                    <mesh geometry={nodes.tl_galv.geometry} material={nodes.tl_galv.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_conc.geometry} material={nodes.tl_conc.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_steelDark.geometry} material={nodes.tl_steelDark.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_bolt.geometry} material={nodes.tl_bolt.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_plateYel.geometry} material={nodes.tl_plateYel.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_rubber.geometry} material={nodes.tl_rubber.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_reflect.geometry} material={nodes.tl_reflect.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_reflectY.geometry} material={nodes.tl_reflectY.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_boardBlk.geometry} material={nodes.tl_boardBlk.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_boardWht.geometry} material={nodes.tl_boardWht.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_body.geometry} material={nodes.tl_body.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_cavity.geometry} material={nodes.tl_cavity.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_ledRedLit.geometry} material={nodes.tl_ledRedLit.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_lensRed.geometry} material={nodes.tl_lensRed.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_hood.geometry} material={nodes.tl_hood.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_ledAmbOff.geometry} material={nodes.tl_ledAmbOff.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_lensAmb.geometry} material={nodes.tl_lensAmb.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_ledGrnOff.geometry} material={nodes.tl_ledGrnOff.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_lensGrn.geometry} material={nodes.tl_lensGrn.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_plateWht.geometry} material={nodes.tl_plateWht.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_plateBlk.geometry} material={nodes.tl_plateBlk.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_figRedOff.geometry} material={nodes.tl_figRedOff.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_figGrnLit.geometry} material={nodes.tl_figGrnLit.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_segLit.geometry} material={nodes.tl_segLit.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_segOff.geometry} material={nodes.tl_segOff.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_lensPed.geometry} material={nodes.tl_lensPed.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_pbBody.geometry} material={nodes.tl_pbBody.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_pbPanel.geometry} material={nodes.tl_pbPanel.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_pbLegend.geometry} material={nodes.tl_pbLegend.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_pbBtn.geometry} material={nodes.tl_pbBtn.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_cab.geometry} material={nodes.tl_cab.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_cabDark.geometry} material={nodes.tl_cabDark.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_brass.geometry} material={nodes.tl_brass.material} receiveShadow castShadow />
+                    <mesh geometry={nodes.tl_tar.geometry} material={nodes.tl_tar.material} receiveShadow castShadow />
+                </group>
+                <group>
+                    {/* Red light */}
+                    <mesh position={[-0.313, 3.89, 0.18]} rotation={[Math.PI / 2, 0, 0]}>
+                        <cylinderGeometry args={[0.11, 0.11, 0.1]} />
+                        <meshStandardMaterial color={light === "red" ? red.A700 : grey[700]} />
+                    </mesh>
+                    {/* Yellow light */}
+                    <mesh position={[-0.313, 3.59, 0.18]} rotation={[Math.PI / 2, 0, 0]}>
+                        <cylinderGeometry args={[0.11, 0.11, 0.1]} />
+                        <meshStandardMaterial color={light === "yellow" ? yellow.A700 : grey[700]} />
+                    </mesh>
+                    {/* Green light */}
+                    <mesh position={[-0.313, 3.29, 0.18]} rotation={[Math.PI / 2, 0, 0]}>
+                        <cylinderGeometry args={[0.11, 0.11, 0.1]} />
+                        <meshStandardMaterial color={light === "green" ? green.A700 : grey[700]} />
+                    </mesh>
+                </group>
+            </RigidBody>
+            {light === "red" && (
+                <RigidBody name={name} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                    <mesh position={[-2.95, 1, 0.5]}>
+                        <boxGeometry args={[2, 1, 1]}/>
+                        <meshStandardMaterial color={"black"} opacity={0.5} transparent/>
+                    </mesh>
+                </RigidBody>
+            )}
+        </group>
     );
 }
 
@@ -413,101 +564,89 @@ function PoliceCar({ position, rotation = [0, 0, 0] }: CarCommonProps) {
     
     return (
         <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <group position={position} rotation={rotation} scale={0.035} dispose={null} castShadow receiveShadow>
+            <group position={position} rotation={rotation} scale={0.035} dispose={null}>
                 <group position={[0.077, -0.141, 7.143]} scale={[3.09, 0.28, 0.28]}>
-                    <mesh geometry={nodes.Object_10.geometry} material={materials['Material.007']} position={[0, 4.77, -26.732]} />
-                    <mesh geometry={nodes.Object_11.geometry} material={materials['Material.008']} position={[0, 6.415, -26.777]} />
-                    <mesh geometry={nodes.Object_12.geometry} material={materials.car_black_remaining} position={[0, 6.319, -3.519]} />
-                    <mesh geometry={nodes.Object_13.geometry} material={materials.Car_Black_Part} position={[0.002, 3.021, -16.702]} />
-                    <mesh geometry={nodes.Object_14.geometry} material={materials.Grill_Back_Design} position={[0, 3.548, -0.862]} />
-                    <mesh geometry={nodes.Object_4.geometry} material={materials.front_grill} position={[0, 3.474, -0.758]} />
-                    <mesh geometry={nodes.Object_5.geometry} material={materials.material} position={[0.004, 5.891, -19.936]} />
-                    <mesh geometry={nodes.Object_6.geometry} material={materials.Remaining_black_side_part} position={[0, 5.363, -43.71]} />
-                    <mesh geometry={nodes.Object_7.geometry} material={materials.Headlight_back} position={[0, 3.712, -2.411]} />
-                    <mesh geometry={nodes.Object_8.geometry} material={materials.Car_Glass} position={[0, 9.224, -26.612]} />
-                    <mesh geometry={nodes.Object_9.geometry} material={materials.upper_yre_border} position={[0, 2.468, -26.004]} />
+                    <mesh geometry={nodes.Object_10.geometry} material={materials['Material.007']} position={[0, 4.77, -26.732]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_11.geometry} material={materials['Material.008']} position={[0, 6.415, -26.777]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_12.geometry} material={materials.car_black_remaining} position={[0, 6.319, -3.519]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_13.geometry} material={materials.Car_Black_Part} position={[0.002, 3.021, -16.702]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_14.geometry} material={materials.Grill_Back_Design} position={[0, 3.548, -0.862]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_4.geometry} material={materials.front_grill} position={[0, 3.474, -0.758]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_5.geometry} material={materials.material} position={[0.004, 5.891, -19.936]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_6.geometry} material={materials.Remaining_black_side_part} position={[0, 5.363, -43.71]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_7.geometry} material={materials.Headlight_back} position={[0, 3.712, -2.411]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_8.geometry} material={materials.Car_Glass} position={[0, 9.224, -26.612]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_9.geometry} material={materials.upper_yre_border} position={[0, 2.468, -26.004]} castShadow receiveShadow/>
                 </group>
                 <group position={[3.317, 1.256, -0.929]} scale={[0.151, 0.199, 0.434]}>
-                    <mesh geometry={nodes.Object_16.geometry} material={materials['Material.003']} position={[-21.27, -0.054, -0.492]} />
+                    <mesh geometry={nodes.Object_16.geometry} material={materials['Material.003']} position={[-21.27, -0.054, -0.492]} castShadow receiveShadow/>
                 </group>
                 <group position={[3.459, 1.734, 2.445]} scale={[0.214, 0.178, 0.081]}>
-                    <mesh geometry={nodes.Object_18.geometry} material={materials.Mirrror_Border} position={[-16.192, 0.01, -2.994]} />
-                    <mesh geometry={nodes.Object_19.geometry} material={materials.Mirror_Glass} position={[-16.775, 0.559, -3.281]} />
+                    <mesh geometry={nodes.Object_18.geometry} material={materials.Mirrror_Border} position={[-16.192, 0.01, -2.994]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_19.geometry} material={materials.Mirror_Glass} position={[-16.775, 0.559, -3.281]} castShadow receiveShadow/>
                 </group>
                 <group position={[0.077, 1.069, -4.007]} scale={[1.345, 0.523, 0.102]}>
-                    <mesh geometry={nodes.Object_21.geometry} material={materials['back_design.001']} position={[0, 0.942, -30.172]} />
+                    <mesh geometry={nodes.Object_21.geometry} material={materials['back_design.001']} position={[0, 0.942, -30.172]} castShadow receiveShadow/>
                 </group>
                 <group position={[0.077, 1.09, -3.961]} scale={[1.345, 0.443, 0.102]}>
-                    <mesh geometry={nodes.Object_23.geometry} material={materials.back_design} position={[0, -0.347, -30.787]} />
+                    <mesh geometry={nodes.Object_23.geometry} material={materials.back_design} position={[0, -0.347, -30.787]} castShadow receiveShadow/>
                 </group>
                 <group position={[3.375, 1.185, -6.3]} rotation={[1.582, -1.397, 1.582]} scale={[0.629, 0.523, 0.102]}>
-                    <mesh geometry={nodes.Object_25.geometry} material={materials.yellow_light} position={[-0.351, 1.175, 34.346]} />
+                    <mesh geometry={nodes.Object_25.geometry} material={materials.yellow_light} position={[-0.351, 1.175, 34.346]} castShadow receiveShadow/>
                 </group>
                 <group position={[3.218, 0.042, 4.657]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[0.83, 0.32, 0.83]}>
-                    <mesh geometry={nodes.Object_29.geometry} material={materials.Tyre_Outer_Design} position={[0, 0, 0.002]} />
-                    <mesh geometry={nodes.Object_30.geometry} material={materials.Tyre__part} position={[0, -0.005, -0.014]} />
-                    <mesh geometry={nodes.Object_31.geometry} material={materials.Tyre_design} position={[0, -0.002, 0]} />
+                    <mesh geometry={nodes.Object_29.geometry} material={materials.Tyre_Outer_Design} position={[0, 0, 0.002]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_30.geometry} material={materials.Tyre__part} position={[0, -0.005, -0.014]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_31.geometry} material={materials.Tyre_design} position={[0, -0.002, 0]} castShadow receiveShadow/>
                 </group>
                 <group position={[0.077, -0.141, 7.143]}>
-                    <mesh geometry={nodes.Object_37.geometry} material={materials.back_bottom_metal} position={[0, 0.35, -14.188]} />
+                    <mesh geometry={nodes.Object_37.geometry} material={materials.back_bottom_metal} position={[0, 0.35, -14.188]} castShadow receiveShadow/>
                 </group>
                 <group position={[0.077, -0.141, 3.175]} scale={[3.09, 0.28, 0.28]}>
-                    <mesh geometry={nodes.Object_39.geometry} material={materials['Material.002']} position={[0, 0.687, 12.263]} />
-                    <mesh geometry={nodes.Object_40.geometry} material={materials.front_bar_design} position={[0, 0.938, 13.315]} />
-                    <mesh geometry={nodes.Object_41.geometry} material={materials['Material.005']} position={[0, 1.841, 12.306]} />
+                    <mesh geometry={nodes.Object_39.geometry} material={materials['Material.002']} position={[0, 0.687, 12.263]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_40.geometry} material={materials.front_bar_design} position={[0, 0.938, 13.315]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_41.geometry} material={materials['Material.005']} position={[0, 1.841, 12.306]} castShadow receiveShadow/>
                 </group>
                 <group position={[0.077, -0.141, 7.089]}>
-                    <mesh geometry={nodes.Object_43.geometry} material={materials.HeadLight_Border} position={[0, 1.037, -0.614]} />
-                    <mesh geometry={nodes.Object_44.geometry} material={materials.Headlight} position={[0, 1.035, -0.627]} />
+                    <mesh geometry={nodes.Object_43.geometry} material={materials.HeadLight_Border} position={[0, 1.037, -0.614]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_44.geometry} material={materials.Headlight} position={[0, 1.035, -0.627]} castShadow receiveShadow/>
                 </group>
                 <group position={[11.099, 2.111, 5.512]}>
-                    <mesh geometry={nodes.Object_46.geometry} material={materials.Police_Siren} position={[-12.879, 1.428, -5.834]} />
-                    <mesh geometry={nodes.Object_47.geometry} material={materials.siren_midden_part} position={[-11.038, 1.983, -5.848]} />
-                    <mesh geometry={nodes.Object_48.geometry} material={materials.siren_red_light} position={[-9.462, 1.735, -5.847]} />
-                    <mesh geometry={nodes.Object_49.geometry} material={materials.Siren_Blue_light} position={[-12.607, 1.728, -5.849]} />
-                    <mesh geometry={nodes.Object_50.geometry} material={materials.siren_bottom} position={[-9.186, 1.428, -5.841]} />
+                    <mesh geometry={nodes.Object_46.geometry} material={materials.Police_Siren} position={[-12.879, 1.428, -5.834]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_47.geometry} material={materials.siren_midden_part} position={[-11.038, 1.983, -5.848]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_48.geometry} material={materials.siren_red_light} position={[-9.462, 1.735, -5.847]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_49.geometry} material={materials.Siren_Blue_light} position={[-12.607, 1.728, -5.849]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_50.geometry} material={materials.siren_bottom} position={[-9.186, 1.428, -5.841]} castShadow receiveShadow/>
                 </group>
                 <group position={[0.077, -0.141, 7.143]} scale={[3.09, 0.28, 0.28]}>
-                    <mesh geometry={nodes.Object_52.geometry} material={materials.siren_bottom} position={[0, 12.767, -26.433]} />
+                    <mesh geometry={nodes.Object_52.geometry} material={materials.siren_bottom} position={[0, 12.767, -26.433]} castShadow receiveShadow/>
                 </group>
                 <group position={[3.357, 1.185, 6.017]} rotation={[1.615, -1.527, 1.615]} scale={[0.629, 0.523, 0.102]}>
-                    <mesh geometry={nodes.Object_54.geometry} material={materials.yellow_light} position={[-0.347, 0.292, 33.837]} />
+                    <mesh geometry={nodes.Object_54.geometry} material={materials.yellow_light} position={[-0.347, 0.292, 33.837]} castShadow receiveShadow/>
                 </group>
                 <group position={[-3.114, 0.042, 4.657]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[0.83, 0.32, 0.83]}>
-                    <mesh geometry={nodes.Object_56.geometry} material={materials.Tyre_Outer_Design} position={[0, 0, 0.002]} />
-                    <mesh geometry={nodes.Object_57.geometry} material={materials.Tyre__part} position={[0, -0.005, -0.014]} />
-                    <mesh geometry={nodes.Object_58.geometry} material={materials.Tyre_design} position={[0, -0.002, 0]} />
+                    <mesh geometry={nodes.Object_56.geometry} material={materials.Tyre_Outer_Design} position={[0, 0, 0.002]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_57.geometry} material={materials.Tyre__part} position={[0, -0.005, -0.014]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_58.geometry} material={materials.Tyre_design} position={[0, -0.002, 0]} castShadow receiveShadow/>
                 </group>
                 <group position={[3.218, 0.042, -5.07]} rotation={[Math.PI / 2, 0, -Math.PI / 2]}>
-                    <mesh geometry={nodes.Object_60.geometry} material={materials.Tyre_Outer_Design} position={[-0.001, 0, 0.005]} />
-                    <mesh geometry={nodes.Object_61.geometry} material={materials.Tyre__part} position={[-0.002, -0.007, -0.026]} />
-                    <mesh geometry={nodes.Object_62.geometry} material={materials.Tyre_design} position={[0.003, -0.001, 0.001]} />
+                    <mesh geometry={nodes.Object_60.geometry} material={materials.Tyre_Outer_Design} position={[-0.001, 0, 0.005]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_61.geometry} material={materials.Tyre__part} position={[-0.002, -0.007, -0.026]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_62.geometry} material={materials.Tyre_design} position={[0.003, -0.001, 0.001]} castShadow receiveShadow/>
                 </group>
                 <group position={[-3.114, 0.042, -5.07]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[0.83, 0.32, 0.83]}>
-                    <mesh geometry={nodes.Object_64.geometry} material={materials.Tyre_Outer_Design} position={[0, 0, 0.002]} />
-                    <mesh geometry={nodes.Object_65.geometry} material={materials.Tyre__part} position={[0, -0.005, -0.014]} />
-                    <mesh geometry={nodes.Object_66.geometry} material={materials.Tyre_design} position={[0, -0.002, 0]} />
+                    <mesh geometry={nodes.Object_64.geometry} material={materials.Tyre_Outer_Design} position={[0, 0, 0.002]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_65.geometry} material={materials.Tyre__part} position={[0, -0.005, -0.014]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_66.geometry} material={materials.Tyre_design} position={[0, -0.002, 0]} castShadow receiveShadow/>
                 </group>
                 <group position={[3.381, 0.936, 1.396]} rotation={[2.219, 0.037, -1.603]} scale={[0.492, 0.073, 0.492]}>
-                    <mesh geometry={nodes.Object_68.geometry} material={materials.star_design} position={[0.205, -45.363, -0.233]} />
+                    <mesh geometry={nodes.Object_68.geometry} material={materials.star_design} position={[0.205, -45.363, -0.233]} castShadow receiveShadow/>
                 </group>
                 <group position={[2.896, 0.879, -7.097]}>
-                    <mesh geometry={nodes.Object_72.geometry} material={materials.tail_lightt} position={[-2.819, -0.009, -0.08]} />
-                    <mesh geometry={nodes.Object_73.geometry} material={materials.til_light_border} position={[-2.819, -0.008, 0.052]} />
+                    <mesh geometry={nodes.Object_72.geometry} material={materials.tail_lightt} position={[-2.819, -0.009, -0.08]} castShadow receiveShadow/>
+                    <mesh geometry={nodes.Object_73.geometry} material={materials.til_light_border} position={[-2.819, -0.008, 0.052]} castShadow receiveShadow/>
                 </group>
             </group>
-        </RigidBody>
-    );
-}
-
-/* ------------------------------------------------------------------------------------------------------------------ */
-
-function Crosswalk({ position, rotation = [0, 0, 0] }: FoundationCommonProps) {
-    const { nodes, materials } = useGLTF("/models/foundations/road-crossing-curbcut.glb");
-
-    return (
-        <RigidBody>
-            <mesh geometry={(nodes["road_crossing_curbcut_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25}/>
         </RigidBody>
     );
 }
@@ -519,10 +658,38 @@ function ParkingBay({ position, rotation = [0, 0, 0] }: FoundationCommonProps) {
 
     return (
         <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <mesh geometry={(nodes["parking_bay_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} />
+            <mesh geometry={(nodes["parking_bay_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow/>
         </RigidBody>
     );
 }
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function Crosswalk({ position, rotation = [0, 0, 0] }: FoundationCommonProps) {
+    const { nodes, materials } = useGLTF("/models/foundations/road-crossing-curbcut.glb");
+
+    return (
+        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+            <mesh geometry={(nodes["road_crossing_curbcut_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow/>
+        </RigidBody>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+// function Crosswalks() {
+//     const { nodes, materials } = useGLTF("/models/foundations/road-crossing-curbcut.glb");
+
+//     return (
+//         <Instances geometry={(nodes["road_crossing_curbcut_01"] as Mesh).geometry} material={materials["lowpoly"]}>
+//             {crosswalks.map((crosswalk, index) =>
+//                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`crosswalk-${index}`} ccd>
+//                     <Instance position={crosswalk.position as [x: number, y: number, z: number]} rotation={crosswalk.rotation as [x: number, y: number, z: number]} scale={0.25} receiveShadow/>
+//                 </RigidBody>
+//             )}
+//         </Instances>
+//     );
+// }
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -531,10 +698,122 @@ function RoadStraight({ position, rotation = [0, 0, 0] }: FoundationCommonProps)
 
     return (
         <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <mesh geometry={(nodes["road_straight_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25}/>
+            <mesh geometry={(nodes["road_straight_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow/>
         </RigidBody>
     );
 }
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+// function RoadStraights() {
+//     const { nodes, materials } = useGLTF("/models/foundations/road-straight.glb");
+
+//     return (
+//         <Instances geometry={(nodes["road_straight_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]}>
+//             {roadStraights.map((straight, index) =>
+//                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`straight-${index}`} ccd>
+//                     <Instance position={straight.position as [x: number, y: number, z: number]} rotation={straight.rotation as [x: number, y: number, z: number]} scale={0.25} receiveShadow/>
+//                 </RigidBody>
+//             )}
+//         </Instances>
+//     );
+// }
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function RoadTJunction({ position, rotation = [0, 0, 0] }: FoundationCommonProps) {
+    const { nodes, materials } = useGLTF("/models/foundations/road-t-junction.glb");
+
+    return (
+        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+            <mesh geometry={(nodes["road_t_junction_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow/>
+        </RigidBody>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function RoadCorner({ position, rotation = [0, 0, 0] }: FoundationCommonProps) {
+    const { nodes, materials } = useGLTF("/models/foundations/road-corner.glb");
+
+    return (
+        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+            <mesh geometry={(nodes["road_corner_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow/>
+        </RigidBody>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+// function RoadCorners() {
+//     const { nodes, materials } = useGLTF("/models/foundations/road-corner.glb");
+
+//     return (
+//         <Instances geometry={(nodes["road_corner_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]}>
+//             {roadCorners.map((corner, index) =>
+//                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`corner-${index}`} ccd>
+//                     <Instance position={corner.position as [x: number, y: number, z: number]} rotation={corner.rotation as [x: number, y: number, z: number]} scale={0.25} receiveShadow/>
+//                 </RigidBody>
+//             )}
+//         </Instances>
+//     );
+// }
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function Sidewalk({ position, rotation }: FoundationCommonProps) {
+    const { nodes, materials } = useGLTF("/models/foundations/sidewalk.glb");
+
+    return (
+        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+            <mesh geometry={(nodes["sidewalk_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow castShadow/>
+        </RigidBody>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+// function Sidewalks() {
+//     const { nodes, materials } = useGLTF("/models/foundations/sidewalk.glb");
+
+//     return (
+//         <Instances geometry={(nodes["sidewalk_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+//             {sidewalks.map((sidewalk, index) =>
+//                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`sidewalk-${index}`} ccd>
+//                     <Instance position={sidewalk.position as [x: number, y: number, z: number]} rotation={sidewalk.rotation as [x: number, y: number, z: number]} scale={0.25} receiveShadow/>
+//                 </RigidBody>
+//             )}
+//         </Instances>
+//     );
+// }
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function PlazaPaving({ position, rotation = [0, 0, 0] }: FoundationCommonProps) {
+    const { nodes, materials } = useGLTF("/models/foundations/plaza-paving.glb");
+
+    return (
+        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+            <mesh geometry={(nodes["plaza_paving_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow/>
+        </RigidBody>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+// function PlazaPavings() {
+//     const { nodes, materials } = useGLTF("/models/foundations/plaza-paving.glb");
+
+//     return (
+//         <Instances geometry={(nodes["plaza_paving_01"] as Mesh).geometry} material={materials["lowpoly"]}>
+//             <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+//                 {plazaPavings.map((paving, index) =>
+//                     <Instance position={paving.position as [x: number, y: number, z: number]} rotation={paving.rotation as [x: number, y: number, z: number]} scale={0.25} key={`paving-${index}`} receiveShadow/>
+//                 )}
+//             </RigidBody>
+//         </Instances>
+//     );
+// }
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -543,7 +822,7 @@ function ParkingSign({ position, rotation = [0, 0, 0] }: OtherCommonProps) {
 
     return (
         <RigidBody type={"fixed"} colliders={"hull"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <mesh geometry={(nodes["sign_accessible_symbol_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25}/>
+            <mesh geometry={(nodes["sign_accessible_symbol_01"] as Mesh).geometry} material={materials["lowpoly"]} position={position} rotation={rotation} scale={0.25} receiveShadow castShadow/>
         </RigidBody>
     );
 }
@@ -836,7 +1115,7 @@ function PropertySpace({ position, rotation = [0, 0, 0], group, label }: SpaceCo
 
     return (
         <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <group position={position} rotation={rotation} receiveShadow castShadow>
+            <group position={position} rotation={rotation}>
                 <mesh position={[0, 0, 0]} receiveShadow>
                     <boxGeometry args={[1.5, 0.2, 2]} />
                     {Array.from({ length: 6 }).map((_, index) =>
@@ -942,7 +1221,112 @@ export function Board() {
             <TaxSpace position={[7.75, 0, 4.5]} rotation={[0, Math.PI / 2, 0]} label={"Luxury Tax"} taxValue={100}/>
             <PropertySpace position={[7.75, 0, 6]} rotation={[0, Math.PI / 2, 0]} group={"BLUE"} label={"Boardwalk"}/> */}
 
-            <RoadStraight position={[-9.25, 0.05675, -7.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            {/* <RoadStraights/> */}
+
+            {roadStraights.map((roadStraight, index) =>
+                <RoadStraight position={roadStraight.position as [x: number, y: number, z: number]} rotation={roadStraight.rotation as [x: number, y: number, z: number]} key={`road-straight-${index}`}/>
+            )}
+
+            <RoadTJunction position={[-10.25, 0.05675, -7.25]} rotation={[0, Math.PI / 2, 0]}/>
+            
+            {/* <RoadCorners/> */}
+
+            {roadCorners.map((roadCorner, index) =>
+                <RoadCorner position={roadCorner.position as [x: number, y: number, z: number]} rotation={roadCorner.rotation as [x: number, y: number, z: number]} key={`road-corner-${index}`}/>
+            )}
+
+            {/* <Crosswalks/> */}
+
+            {crosswalks.map((crosswalk, index) =>
+                <Crosswalk position={crosswalk.position as [x: number, y: number, z: number]} rotation={crosswalk.rotation as [x: number, y: number, z: number]} key={`crosswalk-${index}`}/>
+            )}
+
+            {/* <Sidewalks/> */}
+
+            {sidewalks.map((sidewalk, index) =>
+                <Sidewalk position={sidewalk.position as [x: number, y: number, z: number]} rotation={sidewalk.rotation as [x: number, y: number, z: number]} key={`sidewalk-${index}`}/>
+            )}
+
+            {/* <PlazaPavings/> */}
+
+            {plazaPavings.map((plazaPaving, index) =>
+                <PlazaPaving position={plazaPaving.position as [x: number, y: number, z: number]} rotation={plazaPaving.rotation as [x: number, y: number, z: number]} key={`plaza-paving-${index}`}/>
+            )}
+
+            {trafficLights.map((trafficLight, index) =>
+                <TrafficLight position={trafficLight.position as [x: number, y: number, z: number]} rotation={trafficLight.rotation as [x: number, y: number, z: number]} key={`traffic-light-${index}`}/>
+            )}
+
+            {/* <Sidewalk position={[8.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[7.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[6.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[5.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[4.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[3.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[2.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[1.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[0.25, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-0.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-1.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-2.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-3.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-4.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-5.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-6.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            <Sidewalk position={[-7.75, -0.01, 9.25]} rotation={[0, Math.PI / 2, 0]}/>
+            
+            <Sidewalk position={[-9.25, -0.01, -6.25]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, -5.25]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, -4.25]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, -3.25]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, -2.25]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, -1.25]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, -0.25]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 0.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 1.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 2.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 3.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 4.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 5.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 6.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, 7.75]} rotation={[0, 0, 0]}/>
+            <Sidewalk position={[-9.25, -0.01, -8.25]} rotation={[0, 0, 0]}/>
+
+            <Sidewalk position={[-8.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-7.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-6.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-5.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-4.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-3.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-2.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-1.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[-0.25, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[0.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[1.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[2.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[3.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[4.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[5.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[6.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+            <Sidewalk position={[7.75, -0.01, -9.25]} rotation={[0, -Math.PI / 2, 0]}/>
+
+            <Sidewalk position={[9.25, -0.01, -8.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -7.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -6.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -5.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -4.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -3.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -2.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -1.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, -0.25]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 0.75]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 1.75]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 2.75]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 3.75]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 4.75]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 5.75]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 6.75]} rotation={[0, Math.PI, 0]}/>
+            <Sidewalk position={[9.25, -0.01, 7.75]} rotation={[0, Math.PI, 0]}/> */}
         </group>
     );
 }
@@ -960,3 +1344,8 @@ useGLTF.preload("/models/others/parking-sign.glb");
 useGLTF.preload("/models/foundations/road-straight.glb");
 useGLTF.preload("/models/buildings/water-tower.glb");
 useGLTF.preload("/models/cars/police-car.glb");
+useGLTF.preload("/models/foundations/road-t-junction.glb");
+useGLTF.preload("/models/foundations/sidewalk.glb");
+useGLTF.preload("/models/foundations/plaza-paving.glb");
+useGLTF.preload("/models/foundations/road-corner.glb");
+useGLTF.preload("/models/others/traffic-light.glb");
