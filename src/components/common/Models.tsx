@@ -1,19 +1,22 @@
 import { ActiveCollisionTypes } from "@dimforge/rapier3d-compat";
 import { blue, brown, green, grey, orange, pink, red, yellow } from "@mui/material/colors";
 import { Center, Edges, Float, Image, Instance, Instances, Text, Text3D, useAnimations, useGLTF, useTexture } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useGraph } from "@react-three/fiber";
 import { RapierRigidBody, RigidBody, type IntersectionEnterPayload } from "@react-three/rapier";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimationClip, Euler, MathUtils, Mesh, MeshStandardMaterial, PlaneGeometry, RepeatWrapping, Vector3, type Group } from "three";
 import { Group as SpaceGroup } from "../../constants/Group";
-import type { GLTF } from "three-stdlib";
+import { SkeletonUtils, type GLTF } from "three-stdlib";
 import { Water } from "three/examples/jsm/objects/Water.js";
 import { properties, railroads, utilities, taxes, chests, chances } from "../../assets/data/board.json";
-import { grassTiles, sidewalks, plazaPavings, roadStraights, roadTJunctions, roadCorners, crosswalks, platformApronTiles, cars, buildings, basketballPlaygrounds, dirtTrails, packedEarthTiles } from "../../assets/data/scenery.json";
+import { foundations, cars, buildings, others } from "../../assets/data/scenery.json";
 import { SceneryContext } from "../../contexts/SceneryContext";
 import { useSpaceHover } from "../../hooks/useSpaceHover";
-import { CAR_RUN_VECLOTIY_LAMBDA, CAR_STOP_VELOCITY_LAMBDA } from "../../constants/SceneProps";
+import { CAR_RUN_VECLOTIY_LAMBDA, CAR_STOP_VELOCITY_LAMBDA, OAK_MAX_SCALE, OAK_MIN_SCALE, PINE_MAX_SCALE, PINE_MIN_SCALE } from "../../constants/SceneProps";
 import { extend } from "@react-three/fiber";
+import { Smoke } from "./Effects";
+import type { SkinnedMesh } from "three";
+import type { Bone } from "three";
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -1562,6 +1565,138 @@ function GoldenTrophyStatue(props: OtherCommonProps) {
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
+function SplitRailFenceInstances() {
+    const { nodes, materials } = useGLTF("/models/others/split-rail-fence.glb");
+
+    const { splitRailFences } = others;
+
+    return (
+        <Instances geometry={(nodes["split_rail_fence"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {splitRailFences.map((splitRailFence, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`split-rail-fence-${index}`} ccd>
+                    <Instance position={splitRailFence.position as [x: number, y: number, z: number]} rotation={splitRailFence.rotation as [x: number, y: number, z: number]} scale={0.1875}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function WildTreeInstances() {
+    const bushModel = useGLTF("/models/others/bush.glb");
+    const fernModel = useGLTF("/models/others/fern.glb");
+    const oakModel = useGLTF("/models/others/oak.glb");
+    const pineModel = useGLTF("/models/others/pine.glb");
+
+    const { bushes, ferns, oaks, pines } = others;
+
+    const oakScales = useMemo(() => {
+        const scales = new Float32Array(oaks.length);
+        for (let i = 0; i < oaks.length; i++) {
+            scales[i] = MathUtils.randFloat(OAK_MIN_SCALE, OAK_MAX_SCALE);
+        }
+        return scales;
+    }, [oaks, oakModel]);
+
+    const pineScales = useMemo(() => {
+        const scales = new Float32Array(pines.length);
+        for (let i = 0; i < pines.length; i++) {
+            scales[i] = MathUtils.randFloat(PINE_MIN_SCALE, PINE_MAX_SCALE);
+        }
+        return scales;
+    }, [pines, pineModel]);
+
+    return (
+        <>
+            <Instances geometry={(bushModel.nodes["bush"] as Mesh).geometry} material={bushModel.materials["lowpoly"]} receiveShadow castShadow>
+                {bushes.map((bush, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`bush-${index}`} ccd>
+                        <Instance position={bush.position as [x: number, y: number, z: number]} rotation={bush.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(fernModel.nodes["fern"] as Mesh).geometry} material={fernModel.materials["lowpoly"]} receiveShadow castShadow>
+                {ferns.map((fern, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`fern-${index}`} ccd>
+                        <Instance position={fern.position as [x: number, y: number, z: number]} rotation={fern.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(pineModel.nodes["pine"] as Mesh).geometry} material={pineModel.materials["lowpoly"]} receiveShadow castShadow>
+                {pines.map((pine, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`pine-${index}`} ccd>
+                        <Instance position={pine.position as [x: number, y: number, z: number]} rotation={pine.rotation as [x: number, y: number, z: number]} scale={pineScales[index]}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(oakModel.nodes["oak"] as Mesh).geometry} material={oakModel.materials["lowpoly"]} receiveShadow castShadow>
+                {oaks.map((oak, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`oak-${index}`} ccd>
+                        <Instance position={oak.position as [x: number, y: number, z: number]} rotation={oak.rotation as [x: number, y: number, z: number]} scale={oakScales[index]}/>
+                    </RigidBody>
+                )}
+            </Instances>
+        </>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+interface GLTFClownFishAction extends AnimationClip {
+    name: 'swim' | 'idle' | 'bite' | 'idle_left' | 'swim_left' | 'idle_right' | 'swim_right'
+}
+
+type GLTFClownFishResult = GLTF & {
+    nodes: {
+        Object_7: SkinnedMesh
+        _rootJoint: Bone
+    }
+    materials: {
+        fishclown: MeshStandardMaterial
+    }
+    animations: GLTFClownFishAction[]
+}
+
+export function ClownFish(props: OtherCommonProps) {
+    const { scene, animations } = useGLTF("/models/others/clown-fish.glb");
+
+    const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+
+    const { nodes, materials } = useGraph(clone) as unknown as GLTFClownFishResult;
+
+    const fishRef = useRef<Group>(null!);
+
+    const { actions } = useAnimations(animations, fishRef);
+
+    useEffect(() => {
+        actions["idle"].fadeIn(0.75).play();
+    }, [scene]);
+
+    return (
+        <group ref={fishRef} {...props} scale={0.5} dispose={null}>
+            <group name="Sketchfab_Scene">
+                <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
+                    <group name="de8a6d993d1648139d961f02b30f3fb3fbx" rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
+                        <group name="Object_2">
+                            <group name="RootNode">
+                                <group name="Object_4">
+                                    <primitive object={nodes._rootJoint} />
+                                    <group name="Object_6" position={[0, 0.137, -2.214]} rotation={[-Math.PI / 2, 0, 0]} />
+                                    <group name="fishClown" position={[0, 0.137, -2.214]} rotation={[-Math.PI / 2, 0, 0]} />
+                                    <skinnedMesh name="Object_7" geometry={nodes.Object_7.geometry} material={materials.fishclown} skeleton={nodes.Object_7.skeleton} />
+                                </group>
+                            </group>
+                        </group>
+                    </group>
+                </group>
+            </group>
+        </group>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
 function BasketballPlayground(props: OtherCommonProps) {
     const hoopModel = useGLTF("/models/others/basketball-hoop.glb");
     const fenceModel = useGLTF("/models/others/chain-link-fence.glb");
@@ -1599,6 +1734,59 @@ function BasketballPlayground(props: OtherCommonProps) {
                     </RigidBody>
                 )}
             </Instances>
+        </group>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function Campsite(props: OtherCommonProps) {
+    const campTentModel = useGLTF("/models/others/camp-tent.glb");
+    const campfireModel = useGLTF("/models/others/stone-ring-campfire.glb");
+    const lanternModel = useGLTF("/models/others/lantern.glb");
+    const logBenchModel = useGLTF("/models/others/log-bench.glb");
+
+    return (
+        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+            <group {...props}>
+                <Instances geometry={(campTentModel.nodes["camp_tent"] as Mesh).geometry} material={campTentModel.materials["lowpoly"]} receiveShadow castShadow>
+                    <Instance position={[0, 0, -0.65]} scale={0.25}/>
+                    <Instance position={[0, 0, 0.65]} rotation={[0, Math.PI, 0]} scale={0.25}/>
+                </Instances>
+                <group>
+                    <mesh geometry={(campfireModel.nodes["stone_ring_campfire"] as Mesh).geometry} material={campfireModel.materials["lowpoly"]} scale={0.25}/>
+                </group>
+                <Instances geometry={(logBenchModel.nodes["log_bench"] as Mesh).geometry} material={logBenchModel.materials["lowpoly"]} castShadow receiveShadow>
+                    <Instance position={[-0.3, 0, 0]} rotation={[0, Math.PI / 2, 0]} scale={0.25}/>
+                    <Instance position={[0.2, 0, -0.2]} rotation={[0, -Math.PI / 4, 0]} scale={0.25}/>
+                </Instances>
+                <Instances geometry={(lanternModel.nodes["lantern"] as Mesh).geometry} material={lanternModel.materials["lowpoly"]} receiveShadow castShadow>
+                    <Instance position={[-0.1, 0, 0.36]} rotation={[0, -Math.PI / 4, 0]} scale={0.25}/>
+                    <Instance position={[0.15, 0.117, -0.25]} scale={0.25}/>
+                </Instances>
+                {/* <Sparkles position={[0, 0.5, 0]} scale={0.01} size={20} speed={0.4} color={grey[600]} /> */}
+                <Smoke position={[0, 0.2, 0]}/>
+            </group>
+        </RigidBody>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function Dock(props: OtherCommonProps) {
+    const dockJettyModel = useGLTF("/models/others/dock-jetty.glb");
+    const fishingPoleModel = useGLTF("/models/others/fishing-pole.glb");
+
+
+    return (
+        <group {...props}>
+            <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                <mesh geometry={(dockJettyModel.nodes["dock_jetty"] as Mesh).geometry} material={dockJettyModel.materials["lowpoly"]} scale={0.25} receiveShadow castShadow/>
+            </RigidBody>
+            <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                <mesh geometry={(fishingPoleModel.nodes["fishing_pole"] as Mesh).geometry} material={fishingPoleModel.materials["lowpoly"]} position={[-0.13, 0.0975, 0.3]} rotation={[0, -Math.PI / 2, 0]} scale={0.15} receiveShadow castShadow/>
+            </RigidBody>
+            <ClownFish position={[0.75, 0.055, 0.75]}/>
         </group>
     );
 }
@@ -1652,6 +1840,8 @@ function Crosswalk(props: FoundationCommonProps & CrosswalkProps) {
 function RoadStraightInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/road-straight.glb");
 
+    const { roadStraights } = foundations;
+
     return (
         <Instances geometry={(nodes["road_straight_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {roadStraights.map((straight, index) =>
@@ -1670,6 +1860,8 @@ function RoadStraightInstances() {
 function RoadTJunctionInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/road-t-junction.glb");
 
+    const { roadTJunctions } = foundations;
+
     return (
         <Instances geometry={(nodes["road_t_junction_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {roadTJunctions.map((roadTJunction, index) =>
@@ -1686,11 +1878,15 @@ function RoadTJunctionInstances() {
 function RoadCornerInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/road-corner.glb");
 
+    const { roadCorners } = foundations;
+
     return (
         <Instances geometry={(nodes["road_corner_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {roadCorners.map((roadCorner, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`road-corner-${index}`} ccd>
-                    <Instance position={roadCorner.position as [x: number, y: number, z: number]} rotation={roadCorner.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    <group>
+                        <Instance position={roadCorner.position as [x: number, y: number, z: number]} rotation={roadCorner.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    </group>
                 </RigidBody>
             )}
         </Instances>
@@ -1701,6 +1897,8 @@ function RoadCornerInstances() {
 
 function SidewalkInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/sidewalk.glb");
+
+    const { sidewalks } = foundations;
 
     return (
         <Instances geometry={(nodes["sidewalk_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
@@ -1717,6 +1915,8 @@ function SidewalkInstances() {
 
 function PlazaPavingInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/plaza-paving.glb");
+
+    const { plazaPavings } = foundations;
 
     return (
         <Instances geometry={(nodes["plaza_paving_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
@@ -1751,6 +1951,8 @@ function PlatformApronTile(props: FoundationCommonProps) {
 
 function PlatformApronTileInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/platform-apron-tile.glb");
+
+    const { platformApronTiles } = foundations;
 
     return (
         <Instances geometry={(nodes["platform_apron_tile"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
@@ -1798,6 +2000,8 @@ function GrassTile(props: FoundationCommonProps & GrassTileProps) {
 function GrassTileInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/grass-tile.glb");
 
+    const { grassTiles } = foundations;
+
     return (
         <Instances geometry={(nodes["grass_tile"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {grassTiles.map((grassTile, index) =>
@@ -1819,6 +2023,8 @@ function GrassTileInstances() {
 
 function DirtTrailInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/dirt-trail.glb");
+
+    const { dirtTrails } = foundations;
 
     return (
         <Instances geometry={(nodes["dirt_trail"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
@@ -1842,6 +2048,8 @@ function DirtTrailInstances() {
 function PackedEarthTileInstances() {
     const { nodes, materials } = useGLTF("/models/foundations/packed-earth-tile.glb");
 
+    const { packedEarthTiles } = foundations;
+
     return (
         <Instances geometry={(nodes["packed_earth_tile"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {packedEarthTiles.map((packedEarthTile, index) =>
@@ -1861,19 +2069,75 @@ function PackedEarthTileInstances() {
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
-// function PlazaPavings() {
-//     const { nodes, materials } = useGLTF("/models/foundations/plaza-paving.glb");
+function ForestFloorInstances() {
+    const { nodes, materials } = useGLTF("/models/foundations/forest-floor.glb");
 
-//     return (
-//         <Instances geometry={(nodes["plaza_paving_01"] as Mesh).geometry} material={materials["lowpoly"]}>
-//             <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-//                 {plazaPavings.map((paving, index) =>
-//                     <Instance position={paving.position as [x: number, y: number, z: number]} rotation={paving.rotation as [x: number, y: number, z: number]} scale={0.25} key={`paving-${index}`} receiveShadow/>
-//                 )}
-//             </RigidBody>
-//         </Instances>
-//     );
-// }
+    const { forestFloors } = foundations;
+
+    return (
+        <Instances geometry={(nodes["forest_floor"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+            {forestFloors.map((forestFloor, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`forest-floor-${index}`} ccd>
+                    <group position={forestFloor.position as [x: number, y: number, z: number]} rotation={forestFloor.rotation as [x: number, y: number, z: number]}>
+                        <Instance scale={0.375}/>
+                        <mesh position={[0, -0.505, 0]} receiveShadow castShadow>
+                            <boxGeometry args={[1.5, 1.01, 1.5]}/>
+                            <meshStandardMaterial color={brown[700]}/>
+                        </mesh>
+                    </group>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function LakeShoreStraightInstances() {
+    const { nodes, materials } = useGLTF("/models/foundations/lake-shore-straight.glb");
+
+    const { lakeShoreStraights } = foundations;
+
+    return (
+        <Instances geometry={(nodes["lake_shore_straight"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+            {lakeShoreStraights.map((lakeShoreStraight, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`lake-shore-straight-${index}`} ccd>
+                    <group position={lakeShoreStraight.position as [x: number, y: number, z: number]} rotation={lakeShoreStraight.rotation as [x: number, y: number, z: number]}>
+                        <Instance scale={0.375}/>
+                        <mesh position={[0, -0.45, 0]} receiveShadow castShadow>
+                            <boxGeometry args={[1.5, 0.915, 1.5]}/>
+                            <meshStandardMaterial color={brown[700]}/>
+                        </mesh>
+                    </group>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function LakeShoreCornerInInstances() {
+    const { nodes, materials } = useGLTF("/models/foundations/lake-shore-corner-in.glb");
+
+    const { lakeShoreCornerIns } = foundations;
+
+    return (
+        <Instances geometry={(nodes["lake_shore_corner_in"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+            {lakeShoreCornerIns.map((lakeShoreCornerIn, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`lake-shore-straight-${index}`} ccd>
+                    <group position={lakeShoreCornerIn.position as [x: number, y: number, z: number]} rotation={lakeShoreCornerIn.rotation as [x: number, y: number, z: number]}>
+                        <Instance scale={0.375}/>
+                        <mesh position={[0, -0.45, 0]} receiveShadow castShadow>
+                            <boxGeometry args={[1.5, 0.915, 1.5]}/>
+                            <meshStandardMaterial color={brown[700]}/>
+                        </mesh>
+                    </group>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -2313,6 +2577,8 @@ function PropertySpace(props: SpaceCommonProps & PropertySpaceProps) {
 export function Board() {
     const trafficLightStates: Map<string, "red" | "yellow" | "green"> = new Map();
 
+    const { basketballPlaygrounds, campsites, docks } = others;
+
     return (
         <SceneryContext.Provider value={{ trafficLightStates }}>
             <GoSpace/>
@@ -2345,6 +2611,9 @@ export function Board() {
             )}
 
             <GrassTileInstances/>
+            <ForestFloorInstances/>
+            <LakeShoreStraightInstances/>
+            <LakeShoreCornerInInstances/>
             <DirtTrailInstances/>
             <PackedEarthTileInstances/>
             <SidewalkInstances/>
@@ -2353,7 +2622,7 @@ export function Board() {
             <RoadStraightInstances/>
             <RoadTJunctionInstances/>
             <RoadCornerInstances/>
-            {crosswalks.map((crosswalk, index) =>
+            {foundations.crosswalks.map((crosswalk, index) =>
                 <Crosswalk position={crosswalk.position as [x: number, y: number, z: number]} rotation={crosswalk.rotation as [x: number, y: number, z: number]} trafficLightNames={[`traffic-light-${index * 2}`, `traffic-light-${index * 2 + 1}`]} trafficLightDuration={[20, 3, 1]} trafficLights key={`crosswalk-${index}`}/>
             )}
 
@@ -2384,15 +2653,19 @@ export function Board() {
                 <OrdinalSedanCar initialPosition={ordinalSedan.initialPosition as [x: number, y: number, z: number]} initialRotation={ordinalSedan.initialRotation as [x: number, y: number, z: number]} key={`car-${index}`}/>
             )}
 
+            <SplitRailFenceInstances/>
+            <WildTreeInstances/>
             <HotAirBalloon/>
             <GoldenTrophyStatue position={[0, 0, 0]}/>
             {basketballPlaygrounds.map((basketballPlayground, index) =>
                 <BasketballPlayground position={basketballPlayground.position as [x: number, y: number, z: number]} rotation={basketballPlayground.rotation as [x: number, y: number, z: number]} key={`basketball-playground-${index}`}/>
             )}
-
-            {/* For Smoke Effect */}
-            {/* <Sparkles position={[4, 1, 0]} scale={0.1} size={20} speed={0.4} color={grey[600]} /> */}
-
+            {campsites.map((campsite, index) =>
+                <Campsite position={campsite.position as [x: number, y: number, z: number]} rotation={campsite.rotation as [x: number, y: number, z: number]} key={`campsite-${index}`}/>
+            )}
+            {docks.map((dock, index) =>
+                <Dock position={dock.position as [x: number, y: number, z: number]} rotation={dock.rotation as [x: number, y: number, z: number]} key={`dock-${index}`}/>
+            )}
         </SceneryContext.Provider>
     );
 }
@@ -2430,7 +2703,13 @@ useGLTF.preload("/models/cars/metropolis-taxi.glb");
 useGLTF.preload("/models/cars/pastel-sedan.glb");
 useGLTF.preload("/models/cars/police-car.glb");
 useGLTF.preload("/models/cars/suv-minivan.glb");
+useGLTF.preload("/models/foundations/dirt-trail.glb");
+useGLTF.preload("/models/foundations/forest-floor.glb");
 useGLTF.preload("/models/foundations/grass-tile.glb");
+useGLTF.preload("/models/foundations/lake-shore-corner-in.glb");
+useGLTF.preload("/models/foundations/lake-shore-straight.glb");
+useGLTF.preload("/models/foundations/lake-tiel.glb");
+useGLTF.preload("/models/foundations/packed-earth-tile.glb");
 useGLTF.preload("/models/foundations/parking-bay.glb");
 useGLTF.preload("/models/foundations/platform-apron-tile.glb");
 useGLTF.preload("/models/foundations/plaza-paving.glb");
@@ -2445,19 +2724,33 @@ useGLTF.preload("/models/others/bench.glb");
 useGLTF.preload("/models/others/birch-tree.glb");
 useGLTF.preload("/models/others/brick-pallet.glb");
 useGLTF.preload("/models/others/bus-shelter.glb");
+useGLTF.preload("/models/others/bush.glb");
+useGLTF.preload("/models/others/campt-tent.glb");
 useGLTF.preload("/models/others/cement-bag-pallet.glb");
 useGLTF.preload("/models/others/chain-link-fence.glb");
 useGLTF.preload("/models/others/chest.glb");
+useGLTF.preload("/models/others/clown-fish.glb");
 useGLTF.preload("/models/others/crate.glb");
+useGLTF.preload("/models/others/dock-jetty.glb");
+useGLTF.preload("/models/others/fern.glb");
 useGLTF.preload("/models/others/fire-hydrant.glb");
+useGLTF.preload("/models/others/fishing-pole.glb");
 useGLTF.preload("/models/others/flower-planter.glb");
 useGLTF.preload("/models/others/golden-trophy.glb");
+useGLTF.preload("/models/others/granite-rock-cluster.glb");
 useGLTF.preload("/models/others/hot-air-balloon.glb");
 useGLTF.preload("/models/others/jail.glb");
+useGLTF.preload("/models/others/latern.glb");
+useGLTF.preload("/models/others/lichen-granite-boulder.glb");
+useGLTF.preload("/models/others/log-bench.glb");
 useGLTF.preload("/models/others/metro-entrance.glb");
+useGLTF.preload("/models/others/oak.glb");
+useGLTF.preload("/models/others/park-bench.glb");
 useGLTF.preload("/models/others/parking-sign.glb");
+useGLTF.preload("/models/others/pine.glb");
 useGLTF.preload("/models/others/scaffold-facade.glb");
 useGLTF.preload("/models/others/sky-day-dome.glb");
+useGLTF.preload("/models/others/stone-ring-campfire.glb");
 useGLTF.preload("/models/others/street-lamp.glb");
 useGLTF.preload("/models/others/street-stop-sign.glb");
 useGLTF.preload("/models/others/street-tree.glb");
@@ -2466,16 +2759,4 @@ useGLTF.preload("/models/others/transmission-tower.glb");
 useGLTF.preload("/models/others/trash-bin.glb");
 useGLTF.preload("/models/others/water-tower.glb");
 useGLTF.preload("/models/others/wheelie-bins.glb");
-useGLTF.preload("/models/others/stone-ring-campfire.glb");
-useGLTF.preload("/models/others/campt-tent.glb");
-useGLTF.preload("/models/others/oak.glb");
-useGLTF.preload("/models/others/pine.glb");
-useGLTF.preload("/models/others/bush.glb");
-useGLTF.preload("/models/others/lichen-granite-boulder.glb");
-useGLTF.preload("/models/others/granite-rock-cluster.glb");
-useGLTF.preload("/models/others/log-bench.glb");
-useGLTF.preload("/models/others/latern.glb");
-useGLTF.preload("/models/others/fern.glb");
-useGLTF.preload("/models/foundations/packed-earth-tile.glb");
-useGLTF.preload("/models/foundations/dirt-trail.glb");
-useGLTF.preload("/models/foundations/lake-tiel.glb");
+useGLTF.preload("/models/others/split-rail-fence.glb");
