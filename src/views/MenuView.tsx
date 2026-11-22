@@ -78,7 +78,7 @@ export default function MenuView() {
                             <MenuGameScene/>
                         </XR>
                     </Canvas>
-                    <Loader containerStyles={{ background: "#0f172a" }} innerStyles={{ width: "300px" }} dataInterpolation={(progress) => `Loading Monopoly Board ${progress.toFixed(0)}%`} />
+                    <Loader containerStyles={{ background: "#0f172a" }} innerStyles={{ width: "300px" }} dataInterpolation={(progress) => `Loading Game Assets ${progress.toFixed(0)}%`} />
                     <Tooltip title={"VR Mode"} arrow>
                         <IconButton className="absolute! top-4! right-4! z-50! bg-zinc-900/30! hover:bg-zinc-900/20! outline! outline-zinc-700!" onClick={handleEnterVrMode}>
                             <ThreeSixty className="text-zinc-100"/>

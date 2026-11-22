@@ -12,46 +12,50 @@ import { properties, railroads, utilities, taxes, chests, chances } from "../../
 import { foundations, cars, buildings, others } from "../../assets/data/scenery.json";
 import { SceneryContext } from "../../contexts/SceneryContext";
 import { useSpaceHover } from "../../hooks/useSpaceHover";
-import { CAR_RUN_VECLOTIY_LAMBDA, CAR_STOP_VELOCITY_LAMBDA, OAK_MAX_SCALE, OAK_MIN_SCALE, PINE_MAX_SCALE, PINE_MIN_SCALE } from "../../constants/SceneProps";
+import { CAR_RUN_VECLOTIY_LAMBDA, CAR_STOP_VELOCITY_LAMBDA, CAROUSEL_SPIN_SPEED, OAK_MAX_SCALE, OAK_MIN_SCALE, PINE_MAX_SCALE, PINE_MIN_SCALE } from "../../constants/SceneProps";
 import { extend } from "@react-three/fiber";
 import { Smoke } from "./Effects";
-import type { SkinnedMesh } from "three";
-import type { Bone } from "three";
+import { type SkinnedMesh } from "three";
+import type { Bone, Object3D } from "three";
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+export type Vector3Array = [x: number, y: number, z: number];
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 type SpaceCommonProps = {
-    position: [x: number, y: number, z: number],
-    rotation?: [x: number, y: number, z: number]
-}
+    position: Vector3Array,
+    rotation?: Vector3Array
+};
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 type BuildingCommonProps = {
-    position: [x: number, y: number, z: number],
-    rotation?: [x: number, y: number, z: number]
-}
+    position: Vector3Array,
+    rotation?: Vector3Array
+};
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 type FoundationCommonProps = {
-    position: [x: number, y: number, z: number],
-    rotation?: [x: number, y: number, z: number]
-}
+    position: Vector3Array,
+    rotation?: Vector3Array
+};
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 type CarCommonProps = {
-    initialPosition: [x: number, y: number, z: number],
-    initialRotation?: [x: number, y: number, z: number]
-}
+    initialPosition: Vector3Array,
+    initialRotation?: Vector3Array
+};
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 type OtherCommonProps = {
-    position: [x: number, y: number, z: number],
-    rotation?: [x: number, y: number, z: number]
-}
+    position: Vector3Array,
+    rotation?: Vector3Array
+};
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -62,7 +66,7 @@ declare module "@react-three/fiber" {
     interface ThreeElements {
         water: any
     }
-}
+};
 
 export function Ocean() {
     const ref = useRef<Water>(null!);
@@ -250,7 +254,7 @@ function ApartmentInstances() {
         <Instances geometry={(nodes["apartment_block_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {apartments.map((apartment, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`apartment-${index}`} ccd>
-                    <Instance position={apartment.position as [x: number, y: number, z: number]} rotation={apartment.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={apartment.position as Vector3Array} rotation={apartment.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -347,7 +351,7 @@ function CafeBrasserieInstances() {
         <Instances geometry={(nodes["cafe_brasserie_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {cafeBrasseries.map((cafeBrasserie, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`cafe-brasserie-${index}`} ccd>
-                    <Instance position={cafeBrasserie.position as [x: number, y: number, z: number]} rotation={cafeBrasserie.rotation as [x: number, y: number, z: number]} scale={0.1925}/>
+                    <Instance position={cafeBrasserie.position as Vector3Array} rotation={cafeBrasserie.rotation as Vector3Array} scale={0.1925}/>
                 </RigidBody>
             )}
         </Instances>
@@ -375,7 +379,7 @@ function BoulangerieInstances() {
         <Instances geometry={(nodes["boulangerie_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {boulangeries.map((boulangerie, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`boulangerie-${index}`} ccd>
-                    <Instance position={boulangerie.position as [x: number, y: number, z: number]} rotation={boulangerie.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={boulangerie.position as Vector3Array} rotation={boulangerie.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -403,7 +407,7 @@ function ConvenienceStoreInstances() {
         <Instances geometry={(nodes["convenience_store_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {convenienceStores.map((convenienceStore, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`convenience-store-${index}`} ccd>
-                    <Instance position={convenienceStore.position as [x: number, y: number, z: number]} rotation={convenienceStore.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={convenienceStore.position as Vector3Array} rotation={convenienceStore.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -431,7 +435,7 @@ function CornerStoreInstances() {
         <Instances geometry={(nodes["corner_store_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {cornerStores.map((cornerStore, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`corner-store-${index}`} ccd>
-                    <Instance position={cornerStore.position as [x: number, y: number, z: number]} rotation={cornerStore.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    <Instance position={cornerStore.position as Vector3Array} rotation={cornerStore.rotation as Vector3Array} scale={0.25}/>
                 </RigidBody>
             )}
         </Instances>
@@ -459,7 +463,7 @@ function DecoHotelInstances() {
         <Instances geometry={(nodes["deco_hotel_three_bay"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {decoHotels.map((decoHotel, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`deco-hotel-${index}`} ccd>
-                    <Instance position={decoHotel.position as [x: number, y: number, z: number]} rotation={decoHotel.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={decoHotel.position as Vector3Array} rotation={decoHotel.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -487,7 +491,7 @@ function DecoShopfrontRowInstances() {
         <Instances geometry={(nodes["deco_shopfront_row"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {decoShopfrontRows.map((decoShopfrontRow, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`deco-shopfront-row-${index}`} ccd>
-                    <Instance position={decoShopfrontRow.position as [x: number, y: number, z: number]} rotation={decoShopfrontRow.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={decoShopfrontRow.position as Vector3Array} rotation={decoShopfrontRow.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -515,7 +519,7 @@ function StationBuildingInstances() {
         <Instances geometry={(nodes["station_building"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {stationBuildings.map((stationBuilding, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`station-building-${index}`} ccd>
-                    <Instance position={stationBuilding.position as [x: number, y: number, z: number]} rotation={stationBuilding.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={stationBuilding.position as Vector3Array} rotation={stationBuilding.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -533,7 +537,7 @@ function HaussmannApartmentInstances() {
         <Instances geometry={(nodes["haussmann_apartment_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {haussmannApartments.map((haussmannApartment, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`haussmann-apartment-${index}`} ccd>
-                    <Instance position={haussmannApartment.position as [x: number, y: number, z: number]} rotation={haussmannApartment.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={haussmannApartment.position as Vector3Array} rotation={haussmannApartment.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -561,7 +565,7 @@ function HomeCottageInstances() {
         <Instances geometry={(nodes["home_cottage_01"] as Mesh).geometry} material={materials["lowpoly"]} castShadow receiveShadow>
             {homeCottages.map((homeCottage, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`home-cottage-${index}`} ccd>
-                    <Instance position={homeCottage.position as [x: number, y: number, z: number]} rotation={homeCottage.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    <Instance position={homeCottage.position as Vector3Array} rotation={homeCottage.rotation as Vector3Array} scale={0.25}/>
                 </RigidBody>
             )}
         </Instances>
@@ -589,7 +593,7 @@ function TwoStoryHouseInstances() {
         <Instances geometry={(nodes["two_story_house"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {twoStoryHouses.map((twoStoryHouse, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`two-story-house-${index}`} ccd>
-                    <Instance position={twoStoryHouse.position as [x: number, y: number, z: number]} rotation={twoStoryHouse.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={twoStoryHouse.position as Vector3Array} rotation={twoStoryHouse.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -617,7 +621,7 @@ function FarmHouseInstances() {
         <Instances geometry={(nodes["farmhouse"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {farmHouses.map((farmHouse, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`farm-house-${index}`} ccd>
-                    <Instance position={farmHouse.position as [x: number, y: number, z: number]} rotation={farmHouse.rotation as [x: number, y: number, z: number]} scale={0.16}/>
+                    <Instance position={farmHouse.position as Vector3Array} rotation={farmHouse.rotation as Vector3Array} scale={0.16}/>
                 </RigidBody>
             )}
         </Instances>
@@ -635,7 +639,7 @@ function RanchHouseInstances() {
         <Instances geometry={(nodes["ranch_house"] as Mesh).geometry} material={materials["lowpoly"]} castShadow receiveShadow>
             {ranchHouses.map((ranchHouse, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`ranch-house-${index}`} ccd>
-                    <Instance position={ranchHouse.position as [x: number, y: number, z: number]} rotation={ranchHouse.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={ranchHouse.position as Vector3Array} rotation={ranchHouse.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -656,7 +660,7 @@ function ConstructionSiteIntances() {
     return (
         <Instances geometry={(concreteFrameWipModel.nodes["concrete_frame_wip"] as Mesh).geometry} material={concreteFrameWipModel.materials["lowpoly"]} receiveShadow castShadow>
             {constructionSites.map((constructionSite, index) =>
-                <group position={constructionSite.position as [x: number, y: number, z: number]} rotation={constructionSite.rotation as [x: number, y: number, z: number]} key={`construction-site-${index}`}>
+                <group position={constructionSite.position as Vector3Array} rotation={constructionSite.rotation as Vector3Array} key={`construction-site-${index}`}>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
                         <Instance scale={0.18}/>
                     </RigidBody>
@@ -728,7 +732,7 @@ function RetailPodiumInstances() {
         <Instances geometry={(nodes["retail_podium_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {retailPodiums.map((retailPodium, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`retail-podium-${index}`} ccd>
-                    <Instance position={retailPodium.position as [x: number, y: number, z: number]} rotation={retailPodium.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={retailPodium.position as Vector3Array} rotation={retailPodium.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -756,7 +760,7 @@ function ShopAwningInstances() {
         <Instances geometry={(nodes["shop_awning_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {shopAwnings.map((shopAwning, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`shop-awning-${index}`} ccd>
-                    <Instance position={shopAwning.position as [x: number, y: number, z: number]} rotation={shopAwning.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={shopAwning.position as Vector3Array} rotation={shopAwning.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -784,7 +788,7 @@ function GlassSkyScraperInstances() {
         <Instances geometry={(nodes["glass_skyscraper_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {glassSkyscrapers.map((glassSkyscraper, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`glass-skyscraper-${index}`} ccd>
-                    <Instance position={glassSkyscraper.position as [x: number, y: number, z: number]} rotation={glassSkyscraper.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={glassSkyscraper.position as Vector3Array} rotation={glassSkyscraper.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -812,7 +816,7 @@ function GlassSupertallInstances() {
         <Instances geometry={(nodes["glass_supertall_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {glassSupertalls.map((glassSupertall, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`glass-supertall-${index}`} ccd>
-                    <Instance position={glassSupertall.position as [x: number, y: number, z: number]} rotation={glassSupertall.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={glassSupertall.position as Vector3Array} rotation={glassSupertall.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -840,7 +844,7 @@ function MidriseOfficeInstances() {
         <Instances geometry={(nodes["midrise_office_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {midriseOffices.map((midriseOffice, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`midrise-office-${index}`} ccd>
-                    <Instance position={midriseOffice.position as [x: number, y: number, z: number]} rotation={midriseOffice.rotation as [x: number, y: number, z: number]} scale={0.18}/>
+                    <Instance position={midriseOffice.position as Vector3Array} rotation={midriseOffice.rotation as Vector3Array} scale={0.18}/>
                 </RigidBody>
             )}
         </Instances>
@@ -868,7 +872,7 @@ function WaterfrontCondoTowerInstances() {
         <Instances geometry={(nodes["waterfront_condo_tower"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {waterfrontCondoTowers.map((waterfrontCondoTower, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`waterfront-condo-tower-${index}`} ccd>
-                    <Instance position={waterfrontCondoTower.position as [x: number, y: number, z: number]} rotation={waterfrontCondoTower.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={waterfrontCondoTower.position as Vector3Array} rotation={waterfrontCondoTower.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -896,7 +900,7 @@ function PorchHouseFrontInstances() {
         <Instances geometry={(nodes["porch_house_front_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {porchHouseFronts.map((porchHouseFront, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`porch-house-front-${index}`} ccd>
-                    <Instance position={porchHouseFront.position as [x: number, y: number, z: number]} rotation={porchHouseFront.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={porchHouseFront.position as Vector3Array} rotation={porchHouseFront.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -924,7 +928,7 @@ function TurfDwellingInstances() {
         <Instances geometry={(nodes["turf_dwelling"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {turfDwellings.map((turfDwelling, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`turf-dwelling-${index}`} ccd>
-                    <Instance position={turfDwelling.position as [x: number, y: number, z: number]} rotation={turfDwelling.rotation as [x: number, y: number, z: number]} scale={0.2}/>
+                    <Instance position={turfDwelling.position as Vector3Array} rotation={turfDwelling.rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -1574,7 +1578,7 @@ function SplitRailFenceInstances() {
         <Instances geometry={(nodes["split_rail_fence"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {splitRailFences.map((splitRailFence, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`split-rail-fence-${index}`} ccd>
-                    <Instance position={splitRailFence.position as [x: number, y: number, z: number]} rotation={splitRailFence.rotation as [x: number, y: number, z: number]} scale={0.1875}/>
+                    <Instance position={splitRailFence.position as Vector3Array} rotation={splitRailFence.rotation as Vector3Array} scale={0.1875}/>
                 </RigidBody>
             )}
         </Instances>
@@ -1612,28 +1616,28 @@ function WildTreeInstances() {
             <Instances geometry={(bushModel.nodes["bush"] as Mesh).geometry} material={bushModel.materials["lowpoly"]} receiveShadow castShadow>
                 {bushes.map((bush, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`bush-${index}`} ccd>
-                        <Instance position={bush.position as [x: number, y: number, z: number]} rotation={bush.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                        <Instance position={bush.position as Vector3Array} rotation={bush.rotation as Vector3Array} scale={0.25}/>
                     </RigidBody>
                 )}
             </Instances>
             <Instances geometry={(fernModel.nodes["fern"] as Mesh).geometry} material={fernModel.materials["lowpoly"]} receiveShadow castShadow>
                 {ferns.map((fern, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`fern-${index}`} ccd>
-                        <Instance position={fern.position as [x: number, y: number, z: number]} rotation={fern.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                        <Instance position={fern.position as Vector3Array} rotation={fern.rotation as Vector3Array} scale={0.25}/>
                     </RigidBody>
                 )}
             </Instances>
             <Instances geometry={(pineModel.nodes["pine"] as Mesh).geometry} material={pineModel.materials["lowpoly"]} receiveShadow castShadow>
                 {pines.map((pine, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`pine-${index}`} ccd>
-                        <Instance position={pine.position as [x: number, y: number, z: number]} rotation={pine.rotation as [x: number, y: number, z: number]} scale={pineScales[index]}/>
+                        <Instance position={pine.position as Vector3Array} rotation={pine.rotation as Vector3Array} scale={pineScales[index]}/>
                     </RigidBody>
                 )}
             </Instances>
             <Instances geometry={(oakModel.nodes["oak"] as Mesh).geometry} material={oakModel.materials["lowpoly"]} receiveShadow castShadow>
                 {oaks.map((oak, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`oak-${index}`} ccd>
-                        <Instance position={oak.position as [x: number, y: number, z: number]} rotation={oak.rotation as [x: number, y: number, z: number]} scale={oakScales[index]}/>
+                        <Instance position={oak.position as Vector3Array} rotation={oak.rotation as Vector3Array} scale={oakScales[index]}/>
                     </RigidBody>
                 )}
             </Instances>
@@ -1697,25 +1701,237 @@ export function ClownFish(props: OtherCommonProps) {
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
+function EntranceArchInstances() {
+    const { nodes, materials } = useGLTF("/models/others/entrance-arch.glb");
+
+    const { entranceArchs } = others;
+
+    return (
+        <Instances geometry={(nodes["entrance_arch"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {entranceArchs.map((entranceArch, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`entrance-arch-${index}`} ccd>
+                    <Instance position={entranceArch.position as Vector3Array} rotation={entranceArch.rotation as Vector3Array} scale={0.25}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function LowPicketFenceInstances() {
+    const { nodes, materials } = useGLTF("/models/others/low-picket-fence.glb");
+
+    const { lowPicketFences } = others;
+
+    return (
+        <Instances geometry={(nodes["low_picket_fence"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {lowPicketFences.map((lowPicketFence, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`low-picket-fence-${index}`} ccd>
+                    <Instance position={lowPicketFence.position as Vector3Array} rotation={lowPicketFence.rotation as Vector3Array} scale={[0.34, 0.25, 0.25]}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function CarouselInstances() {
+    const { nodes, materials } = useGLTF("/models/others/gallopers-carousel.glb");
+
+    const { carousels } = others;
+
+    const instanceRefs = useRef<(Object3D | null)[]>([]);
+
+    useFrame((_, delta) => {
+        for (let i = 0; i < instanceRefs.current.length; i++) {
+            const instance = instanceRefs.current[i];
+            if (!instance) continue;
+
+            const currentY = instance.rotation.y;
+            const targetY = MathUtils.lerp(currentY, currentY + 0.1, 1 - Math.exp(-CAROUSEL_SPIN_SPEED * delta));
+
+            instance.rotation.y = targetY;
+        }
+    });
+
+    return (
+        <Instances geometry={(nodes["gallopers_carousel"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {carousels.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`carousel-${index}`} ccd>
+                    <Instance ref={(instanceRef: Object3D | null) => { instanceRefs.current.push(instanceRef); }} position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function BuntingStrandInstances() {
+    const { nodes, materials } = useGLTF("/models/others/bunting-strand.glb");
+
+    const { buntingStrands } = others;
+
+    return (
+        <Instances geometry={(nodes["bunting_strand"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {buntingStrands.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`bunting-strand-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.3025}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function StringLightStrandInstances() {
+    const { nodes, materials } = useGLTF("/models/others/string-light-strand.glb");
+
+    const { stringLightStrands } = others;
+
+    return (
+        <Instances geometry={(nodes["string_light_strand"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {stringLightStrands.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`string-light-strand-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.3025}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function BalloonCartInstances() {
+    const { nodes, materials } = useGLTF("/models/others/balloon-cart.glb");
+
+    const { balloonCarts } = others;
+
+    return (
+        <Instances geometry={(nodes["balloon_cart"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {balloonCarts.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`balloon-cart-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function HotDogCartInstances() {
+    const { nodes, materials } = useGLTF("/models/others/hot-dog-cart.glb");
+
+    const { hotDogCarts } = others;
+
+    return (
+        <Instances geometry={(nodes["hot_dog_cart"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {hotDogCarts.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`hot-dog-cart-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function PopcornStallInstances() {
+    const { nodes, materials } = useGLTF("/models/others/popcorn-stall.glb");
+
+    const { popcornStalls } = others;
+
+    return (
+        <Instances geometry={(nodes["popcorn_stall"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {popcornStalls.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`popcorn-stall-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.225}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function RingTossBoothInstances() {
+    const { nodes, materials } = useGLTF("/models/others/ring-toss-booth.glb");
+
+    const { ringTossBooths } = others;
+
+    return (
+        <Instances geometry={(nodes["ring_toss_booth"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {ringTossBooths.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`ring-toss-booth-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.225}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function LitterBinInstances() {
+    const { nodes, materials } = useGLTF("/models/others/litter-bin.glb");
+
+    const { litterBins } = others;
+
+    return (
+        <Instances geometry={(nodes["litter_bin"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {litterBins.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`litter-bin-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function FairgroundParkBenchInstances() {
+    const { nodes, materials } = useGLTF("/models/others/fairground-park-bench.glb");
+
+    const { fairgroundParkBenches } = others;
+
+    return (
+        <Instances geometry={(nodes["park_bench"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {fairgroundParkBenches.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`fairground-park-bench-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
 function BasketballPlayground(props: OtherCommonProps) {
     const hoopModel = useGLTF("/models/others/basketball-hoop.glb");
     const fenceModel = useGLTF("/models/others/chain-link-fence.glb");
 
     const hoopAttributes = useMemo(() => [
-        { position: [0, 0, -1.25] as [x: number, y: number, z: number] },
-        { position: [0, 0, 1.25] as [x: number, y: number, z: number], rotation: [0, Math.PI, 0] as [x: number, y: number, z: number] }
+        { position: [0, 0, -1.25] as Vector3Array },
+        { position: [0, 0, 1.25] as Vector3Array, rotation: [0, Math.PI, 0] as Vector3Array }
     ], [hoopModel]);
 
     const fenceAttributes = useMemo(() => [
-        { position: [-1, 0, -1] as [x: number, y: number, z: number], rotation: [0, -Math.PI / 2, 0] as [x: number, y: number, z: number] },
-        { position: [-1, 0, 1] as [x: number, y: number, z: number], rotation: [0, -Math.PI / 2, 0] as [x: number, y: number, z: number] },
-        { position: [0.5, 0, -1.5] as [x: number, y: number, z: number], rotation: [0, Math.PI, 0] as [x: number, y: number, z: number] },
-        { position: [-0.5, 0, -1.5] as [x: number, y: number, z: number], rotation: [0, Math.PI, 0] as [x: number, y: number, z: number] },
-        { position: [1, 0, -1] as [x: number, y: number, z: number], rotation: [0, Math.PI / 2, 0] as [x: number, y: number, z: number] },
-        { position: [1, 0, 0] as [x: number, y: number, z: number], rotation: [0, Math.PI / 2, 0] as [x: number, y: number, z: number] },
-        { position: [1, 0, 1] as [x: number, y: number, z: number], rotation: [0, Math.PI / 2, 0] as [x: number, y: number, z: number] },
-        { position: [0.5, 0, 1.5] as [x: number, y: number, z: number], rotation: [0, 0, 0] as [x: number, y: number, z: number] },
-        { position: [-0.5, 0, 1.5] as [x: number, y: number, z: number], rotation: [0, 0, 0] as [x: number, y: number, z: number] }
+        { position: [-1, 0, -1] as Vector3Array, rotation: [0, -Math.PI / 2, 0] as Vector3Array },
+        { position: [-1, 0, 1] as Vector3Array, rotation: [0, -Math.PI / 2, 0] as Vector3Array },
+        { position: [0.5, 0, -1.5] as Vector3Array, rotation: [0, Math.PI, 0] as Vector3Array },
+        { position: [-0.5, 0, -1.5] as Vector3Array, rotation: [0, Math.PI, 0] as Vector3Array },
+        { position: [1, 0, -1] as Vector3Array, rotation: [0, Math.PI / 2, 0] as Vector3Array },
+        { position: [1, 0, 0] as Vector3Array, rotation: [0, Math.PI / 2, 0] as Vector3Array },
+        { position: [1, 0, 1] as Vector3Array, rotation: [0, Math.PI / 2, 0] as Vector3Array },
+        { position: [0.5, 0, 1.5] as Vector3Array, rotation: [0, 0, 0] as Vector3Array },
+        { position: [-0.5, 0, 1.5] as Vector3Array, rotation: [0, 0, 0] as Vector3Array }
     ], [fenceModel]);
 
     return (
@@ -1846,7 +2062,7 @@ function RoadStraightInstances() {
         <Instances geometry={(nodes["road_straight_accessible_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {roadStraights.map((straight, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`road-straight-${index}`} ccd>
-                    <group position={straight.position as [x: number, y: number, z: number]} rotation={straight.rotation as [x: number, y: number, z: number]}>
+                    <group position={straight.position as Vector3Array} rotation={straight.rotation as Vector3Array}>
                         <Instance scale={0.25}/>
                     </group>
                 </RigidBody>
@@ -1866,7 +2082,7 @@ function RoadTJunctionInstances() {
         <Instances geometry={(nodes["road_t_junction_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {roadTJunctions.map((roadTJunction, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`road-t-junction-${index}`} ccd>
-                    <Instance position={roadTJunction.position as [x: number, y: number, z: number]} rotation={roadTJunction.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    <Instance position={roadTJunction.position as Vector3Array} rotation={roadTJunction.rotation as Vector3Array} scale={0.25}/>
                 </RigidBody>
             )}
         </Instances>
@@ -1885,7 +2101,7 @@ function RoadCornerInstances() {
             {roadCorners.map((roadCorner, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`road-corner-${index}`} ccd>
                     <group>
-                        <Instance position={roadCorner.position as [x: number, y: number, z: number]} rotation={roadCorner.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                        <Instance position={roadCorner.position as Vector3Array} rotation={roadCorner.rotation as Vector3Array} scale={0.25}/>
                     </group>
                 </RigidBody>
             )}
@@ -1904,7 +2120,7 @@ function SidewalkInstances() {
         <Instances geometry={(nodes["sidewalk_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {sidewalks.map((sidewalk, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`sidewalk-${index}`} ccd>
-                    <Instance position={sidewalk.position as [x: number, y: number, z: number]} rotation={sidewalk.rotation as [x: number, y: number, z: number]} scale={0.25} />
+                    <Instance position={sidewalk.position as Vector3Array} rotation={sidewalk.rotation as Vector3Array} scale={0.25} />
                 </RigidBody>
             )}
         </Instances>
@@ -1922,7 +2138,7 @@ function PlazaPavingInstances() {
         <Instances geometry={(nodes["plaza_paving_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {plazaPavings.map((plazaPaving, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`plaza-paving-${index}`} ccd>
-                    <Instance position={plazaPaving.position as [x: number, y: number, z: number]} rotation={plazaPaving.rotation as [x: number, y: number, z: number]} scale={0.25}/>
+                    <Instance position={plazaPaving.position as Vector3Array} rotation={plazaPaving.rotation as Vector3Array} scale={0.25}/>
                 </RigidBody>
             )}
         </Instances>
@@ -1958,7 +2174,7 @@ function PlatformApronTileInstances() {
         <Instances geometry={(nodes["platform_apron_tile"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {platformApronTiles.map((platformApronTile, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`platform-apron-tile-${index}`} ccd>
-                    <group position={platformApronTile.position as [x: number, y: number, z: number]} rotation={platformApronTile.rotation as [x: number, y: number, z: number]}>
+                    <group position={platformApronTile.position as Vector3Array} rotation={platformApronTile.rotation as Vector3Array}>
                         <Instance scale={0.375}/>
                         <mesh position={[0, -0.475, 0]} receiveShadow castShadow>
                             <boxGeometry args={[1.5, 0.95, 1.5]}/>
@@ -2006,7 +2222,7 @@ function GrassTileInstances() {
         <Instances geometry={(nodes["grass_tile"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {grassTiles.map((grassTile, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`grass-tile-${index}`} ccd>
-                    <group position={grassTile.position as [x: number, y: number, z: number]} rotation={grassTile.rotation as [x: number, y: number, z: number]}>
+                    <group position={grassTile.position as Vector3Array} rotation={grassTile.rotation as Vector3Array}>
                         <Instance scale={0.375} />
                         <mesh position={[0, -0.5, 0]} receiveShadow castShadow>
                             <boxGeometry args={[1.5, 1, 1.5]}/>
@@ -2030,7 +2246,7 @@ function DirtTrailInstances() {
         <Instances geometry={(nodes["dirt_trail"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {dirtTrails.map((dirtTrail, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`dirt-trail-${index}`} ccd>
-                    <group position={dirtTrail.position as [x: number, y: number, z: number]} rotation={dirtTrail.rotation as [x: number, y: number, z: number]}>
+                    <group position={dirtTrail.position as Vector3Array} rotation={dirtTrail.rotation as Vector3Array}>
                         <Instance scale={0.375} />
                         <mesh position={[0, -0.5, 0]} receiveShadow>
                             <boxGeometry args={[1.5, 1, 1.5]}/>
@@ -2054,7 +2270,7 @@ function PackedEarthTileInstances() {
         <Instances geometry={(nodes["packed_earth_tile"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {packedEarthTiles.map((packedEarthTile, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`packed-earth-tile-${index}`} ccd>
-                    <group position={packedEarthTile.position as [x: number, y: number, z: number]} rotation={packedEarthTile.rotation as [x: number, y: number, z: number]}>
+                    <group position={packedEarthTile.position as Vector3Array} rotation={packedEarthTile.rotation as Vector3Array}>
                         <Instance scale={0.375}/>
                         <mesh position={[0, -0.505, 0]} receiveShadow castShadow>
                             <boxGeometry args={[1.5, 1.01, 1.5]}/>
@@ -2078,7 +2294,7 @@ function ForestFloorInstances() {
         <Instances geometry={(nodes["forest_floor"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {forestFloors.map((forestFloor, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`forest-floor-${index}`} ccd>
-                    <group position={forestFloor.position as [x: number, y: number, z: number]} rotation={forestFloor.rotation as [x: number, y: number, z: number]}>
+                    <group position={forestFloor.position as Vector3Array} rotation={forestFloor.rotation as Vector3Array}>
                         <Instance scale={0.375}/>
                         <mesh position={[0, -0.505, 0]} receiveShadow castShadow>
                             <boxGeometry args={[1.5, 1.01, 1.5]}/>
@@ -2102,7 +2318,7 @@ function LakeShoreStraightInstances() {
         <Instances geometry={(nodes["lake_shore_straight"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {lakeShoreStraights.map((lakeShoreStraight, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`lake-shore-straight-${index}`} ccd>
-                    <group position={lakeShoreStraight.position as [x: number, y: number, z: number]} rotation={lakeShoreStraight.rotation as [x: number, y: number, z: number]}>
+                    <group position={lakeShoreStraight.position as Vector3Array} rotation={lakeShoreStraight.rotation as Vector3Array}>
                         <Instance scale={0.375}/>
                         <mesh position={[0, -0.45, 0]} receiveShadow castShadow>
                             <boxGeometry args={[1.5, 0.915, 1.5]}/>
@@ -2126,10 +2342,106 @@ function LakeShoreCornerInInstances() {
         <Instances geometry={(nodes["lake_shore_corner_in"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
             {lakeShoreCornerIns.map((lakeShoreCornerIn, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`lake-shore-straight-${index}`} ccd>
-                    <group position={lakeShoreCornerIn.position as [x: number, y: number, z: number]} rotation={lakeShoreCornerIn.rotation as [x: number, y: number, z: number]}>
+                    <group position={lakeShoreCornerIn.position as Vector3Array} rotation={lakeShoreCornerIn.rotation as Vector3Array}>
                         <Instance scale={0.375}/>
                         <mesh position={[0, -0.45, 0]} receiveShadow castShadow>
                             <boxGeometry args={[1.5, 0.915, 1.5]}/>
+                            <meshStandardMaterial color={brown[700]}/>
+                        </mesh>
+                    </group>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function FairgroundGrassTileInstaces() {
+    const { nodes, materials } = useGLTF("/models/foundations/fairground-grass-tile.glb");
+
+    const { fairgroundGrassTiles } = foundations;
+
+    return (
+        <Instances geometry={(nodes["fairground_grass_tile"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+            {fairgroundGrassTiles.map((fairgroundGrassTile, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`fairground-grass-tile-${index}`} ccd>
+                    <group position={fairgroundGrassTile.position as Vector3Array} rotation={fairgroundGrassTile.rotation as Vector3Array}>
+                        <Instance scale={0.375}/>
+                        <mesh position={[0, -0.45, 0]} receiveShadow castShadow>
+                            <boxGeometry args={[1.5, 0.915, 1.5]}/>
+                            <meshStandardMaterial color={brown[700]}/>
+                        </mesh>
+                    </group>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function RoadMidwayStraightInstances() {
+    const { nodes, materials } = useGLTF("/models/foundations/road-midway-straight.glb");
+
+    const { roadMidwayStraights } = foundations;
+
+    return (
+        <Instances geometry={(nodes["road_midway_straight"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+            {roadMidwayStraights.map((roadMidwayStraight, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`road-midway-straight-${index}`} ccd>
+                    <group position={roadMidwayStraight.position as Vector3Array} rotation={roadMidwayStraight.rotation as Vector3Array}>
+                        <Instance scale={0.375}/>
+                        <mesh position={[0, -0.5025, 0]} receiveShadow castShadow>
+                            <boxGeometry args={[1.5, 1.01, 1.5]}/>
+                            <meshStandardMaterial color={brown[700]}/>
+                        </mesh>
+                    </group>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function RoadMidwayCornerInstances() {
+    const { nodes, materials } = useGLTF("/models/foundations/road-midway-corner.glb");
+
+    const { roadMidwayCorners } = foundations;
+
+    return (
+        <Instances geometry={(nodes["road_midway_corner"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+            {roadMidwayCorners.map((roadMidwayCorner, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`road-midway-corner-${index}`} ccd>
+                    <group position={roadMidwayCorner.position as Vector3Array} rotation={roadMidwayCorner.rotation as Vector3Array}>
+                        <Instance scale={0.375}/>
+                        <mesh position={[0, -0.5025, 0]} receiveShadow castShadow>
+                            <boxGeometry args={[1.5, 1.01, 1.5]}/>
+                            <meshStandardMaterial color={brown[700]}/>
+                        </mesh>
+                    </group>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function RoadMidwayTInstances() {
+    const { nodes, materials } = useGLTF("/models/foundations/road-midway-t.glb");
+
+    const { roadMidwayTs } = foundations;
+
+    return (
+        <Instances geometry={(nodes["road_midway_t"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow>
+            {roadMidwayTs.map((roadMidwayT, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`road-midway-t-${index}`} ccd>
+                    <group position={roadMidwayT.position as Vector3Array} rotation={roadMidwayT.rotation as Vector3Array}>
+                        <Instance scale={0.375}/>
+                        <mesh position={[0, -0.5025, 0]} receiveShadow castShadow>
+                            <boxGeometry args={[1.5, 1.01, 1.5]}/>
                             <meshStandardMaterial color={brown[700]}/>
                         </mesh>
                     </group>
@@ -2587,27 +2899,27 @@ export function Board() {
             <GoToJailSpace/>
 
             {properties.map(property =>
-                <PropertySpace position={property.position as [x: number, y: number, z: number]} rotation={property.rotation as [x: number, y: number, z: number]} group={property.group as SpaceGroup} label={property.name} key={property.id}/>
+                <PropertySpace position={property.position as Vector3Array} rotation={property.rotation as Vector3Array} group={property.group as SpaceGroup} label={property.name} key={property.id}/>
             )}
 
             {railroads.map(railroad =>
-                <RailroadSpace position={railroad.position as [x: number, y: number, z: number]} rotation={railroad.rotation as [x: number, y: number, z: number]} label={railroad.name} key={railroad.id}/>
+                <RailroadSpace position={railroad.position as Vector3Array} rotation={railroad.rotation as Vector3Array} label={railroad.name} key={railroad.id}/>
             )}
 
             {utilities.map(utility =>
-                <UtilitySpace position={utility.position as [x: number, y: number, z: number]} rotation={utility.rotation as [x: number, y: number, z: number]} type={utility.type as "ELECTRIC" | "WATER"} key={utility.id}/>
+                <UtilitySpace position={utility.position as Vector3Array} rotation={utility.rotation as Vector3Array} type={utility.type as "ELECTRIC" | "WATER"} key={utility.id}/>
             )}
 
             {taxes.map(tax => 
-                <TaxSpace position={tax.position as [x: number, y: number, z: number]} rotation={tax.rotation as [x: number, y: number, z: number]} label={tax.name} taxValue={tax.taxValue} key={tax.id}/>
+                <TaxSpace position={tax.position as Vector3Array} rotation={tax.rotation as Vector3Array} label={tax.name} taxValue={tax.taxValue} key={tax.id}/>
             )}
 
             {chests.map(chest =>
-                <CommunityChestSpace position={chest.position as [x: number, y: number, z: number]} rotation={chest.rotation as [x: number, y: number, z: number]} key={chest.id}/>
+                <CommunityChestSpace position={chest.position as Vector3Array} rotation={chest.rotation as Vector3Array} key={chest.id}/>
             )}
 
             {chances.map(chance =>
-                <ChanceSpace position={chance.position as [x: number, y: number, z: number]} rotation={chance.rotation as [x: number, y: number, z: number]} key={chance.id}/>
+                <ChanceSpace position={chance.position as Vector3Array} rotation={chance.rotation as Vector3Array} key={chance.id}/>
             )}
 
             <GrassTileInstances/>
@@ -2623,8 +2935,12 @@ export function Board() {
             <RoadTJunctionInstances/>
             <RoadCornerInstances/>
             {foundations.crosswalks.map((crosswalk, index) =>
-                <Crosswalk position={crosswalk.position as [x: number, y: number, z: number]} rotation={crosswalk.rotation as [x: number, y: number, z: number]} trafficLightNames={[`traffic-light-${index * 2}`, `traffic-light-${index * 2 + 1}`]} trafficLightDuration={[20, 3, 1]} trafficLights key={`crosswalk-${index}`}/>
+                <Crosswalk position={crosswalk.position as Vector3Array} rotation={crosswalk.rotation as Vector3Array} trafficLightNames={[`traffic-light-${index * 2}`, `traffic-light-${index * 2 + 1}`]} trafficLightDuration={[20, 3, 1]} trafficLights key={`crosswalk-${index}`}/>
             )}
+            <FairgroundGrassTileInstaces/>
+            <RoadMidwayStraightInstances/>
+            <RoadMidwayCornerInstances/>
+            <RoadMidwayTInstances/>
 
             <ApartmentInstances/>
             <BoulangerieInstances/>
@@ -2650,22 +2966,38 @@ export function Board() {
             <TurfDwellingInstances/>
 
             {cars.ordinalSedan.map((ordinalSedan, index) =>
-                <OrdinalSedanCar initialPosition={ordinalSedan.initialPosition as [x: number, y: number, z: number]} initialRotation={ordinalSedan.initialRotation as [x: number, y: number, z: number]} key={`car-${index}`}/>
+                <OrdinalSedanCar initialPosition={ordinalSedan.initialPosition as Vector3Array} initialRotation={ordinalSedan.initialRotation as Vector3Array} key={`car-${index}`}/>
             )}
 
-            <SplitRailFenceInstances/>
             <WildTreeInstances/>
             <HotAirBalloon/>
             <GoldenTrophyStatue position={[0, 0, 0]}/>
             {basketballPlaygrounds.map((basketballPlayground, index) =>
-                <BasketballPlayground position={basketballPlayground.position as [x: number, y: number, z: number]} rotation={basketballPlayground.rotation as [x: number, y: number, z: number]} key={`basketball-playground-${index}`}/>
+                <BasketballPlayground position={basketballPlayground.position as Vector3Array} rotation={basketballPlayground.rotation as Vector3Array} key={`basketball-playground-${index}`}/>
             )}
+
+            {/* Forest Section */}
+            <SplitRailFenceInstances/>
             {campsites.map((campsite, index) =>
-                <Campsite position={campsite.position as [x: number, y: number, z: number]} rotation={campsite.rotation as [x: number, y: number, z: number]} key={`campsite-${index}`}/>
+                <Campsite position={campsite.position as Vector3Array} rotation={campsite.rotation as Vector3Array} key={`campsite-${index}`}/>
             )}
             {docks.map((dock, index) =>
-                <Dock position={dock.position as [x: number, y: number, z: number]} rotation={dock.rotation as [x: number, y: number, z: number]} key={`dock-${index}`}/>
+                <Dock position={dock.position as Vector3Array} rotation={dock.rotation as Vector3Array} key={`dock-${index}`}/>
             )}
+
+            {/* Carnival Section */}
+            <EntranceArchInstances />
+            <LowPicketFenceInstances />
+            <CarouselInstances />
+            <BuntingStrandInstances />
+            <StringLightStrandInstances />
+            <BalloonCartInstances />
+            <HotDogCartInstances />
+            <PopcornStallInstances/>
+            <RingTossBoothInstances/>
+            <LitterBinInstances/>
+            <FairgroundParkBenchInstances/>
+
         </SceneryContext.Provider>
     );
 }
@@ -2704,6 +3036,7 @@ useGLTF.preload("/models/cars/pastel-sedan.glb");
 useGLTF.preload("/models/cars/police-car.glb");
 useGLTF.preload("/models/cars/suv-minivan.glb");
 useGLTF.preload("/models/foundations/dirt-trail.glb");
+useGLTF.preload("/models/foundations/fairground-grass-tile.glb");
 useGLTF.preload("/models/foundations/forest-floor.glb");
 useGLTF.preload("/models/foundations/grass-tile.glb");
 useGLTF.preload("/models/foundations/lake-shore-corner-in.glb");
@@ -2715,14 +3048,19 @@ useGLTF.preload("/models/foundations/platform-apron-tile.glb");
 useGLTF.preload("/models/foundations/plaza-paving.glb");
 useGLTF.preload("/models/foundations/road-corner.glb");
 useGLTF.preload("/models/foundations/road-crossing-curbcut.glb");
+useGLTF.preload("/models/foundations/road-mid-way-straight.glb");
+useGLTF.preload("/models/foundations/road-midway-corner.glb");
+useGLTF.preload("/models/foundations/road-midway-t.glb");
 useGLTF.preload("/models/foundations/road-straight.glb");
 useGLTF.preload("/models/foundations/road-t-junction.glb");
 useGLTF.preload("/models/foundations/sidewalk.glb");
 useGLTF.preload("/models/others/autumn-maple.glb");
+useGLTF.preload("/models/others/balloon-cart.glb");
 useGLTF.preload("/models/others/basketball-hoop.glb");
 useGLTF.preload("/models/others/bench.glb");
 useGLTF.preload("/models/others/birch-tree.glb");
 useGLTF.preload("/models/others/brick-pallet.glb");
+useGLTF.preload("/models/others/bunting-strand.glb");
 useGLTF.preload("/models/others/bus-shelter.glb");
 useGLTF.preload("/models/others/bush.glb");
 useGLTF.preload("/models/others/campt-tent.glb");
@@ -2732,31 +3070,40 @@ useGLTF.preload("/models/others/chest.glb");
 useGLTF.preload("/models/others/clown-fish.glb");
 useGLTF.preload("/models/others/crate.glb");
 useGLTF.preload("/models/others/dock-jetty.glb");
+useGLTF.preload("/models/others/entrance-arch.glb");
 useGLTF.preload("/models/others/fern.glb");
 useGLTF.preload("/models/others/fire-hydrant.glb");
 useGLTF.preload("/models/others/fishing-pole.glb");
 useGLTF.preload("/models/others/flower-planter.glb");
+useGLTF.preload("/models/others/gallopers-carousel.glb");
 useGLTF.preload("/models/others/golden-trophy.glb");
 useGLTF.preload("/models/others/granite-rock-cluster.glb");
 useGLTF.preload("/models/others/hot-air-balloon.glb");
+useGLTF.preload("/models/others/hot-dog-cart.glb");
 useGLTF.preload("/models/others/jail.glb");
 useGLTF.preload("/models/others/latern.glb");
 useGLTF.preload("/models/others/lichen-granite-boulder.glb");
+useGLTF.preload("/models/others/litter-bin.glb");
 useGLTF.preload("/models/others/log-bench.glb");
+useGLTF.preload("/models/others/low-ticket-fence.glb");
 useGLTF.preload("/models/others/metro-entrance.glb");
 useGLTF.preload("/models/others/oak.glb");
 useGLTF.preload("/models/others/park-bench.glb");
 useGLTF.preload("/models/others/parking-sign.glb");
 useGLTF.preload("/models/others/pine.glb");
+useGLTF.preload("/models/others/popcorn-stall.glb");
+useGLTF.preload("/models/others/ring-toss-booth.glb");
 useGLTF.preload("/models/others/scaffold-facade.glb");
 useGLTF.preload("/models/others/sky-day-dome.glb");
+useGLTF.preload("/models/others/split-rail-fence.glb");
 useGLTF.preload("/models/others/stone-ring-campfire.glb");
 useGLTF.preload("/models/others/street-lamp.glb");
 useGLTF.preload("/models/others/street-stop-sign.glb");
 useGLTF.preload("/models/others/street-tree.glb");
+useGLTF.preload("/models/others/string-light-strand.glb");
 useGLTF.preload("/models/others/traffic-light.glb");
 useGLTF.preload("/models/others/transmission-tower.glb");
 useGLTF.preload("/models/others/trash-bin.glb");
 useGLTF.preload("/models/others/water-tower.glb");
 useGLTF.preload("/models/others/wheelie-bins.glb");
-useGLTF.preload("/models/others/split-rail-fence.glb");
+useGLTF.preload("/models/others/fairground-park-bench.glb");
