@@ -2,13 +2,14 @@ import { blue, grey } from "@mui/material/colors";
 import { Board, SkyDome } from "./Models";
 import { Physics, RigidBody } from "@react-three/rapier";
 import { ActiveCollisionTypes } from "@dimforge/rapier3d-compat";
-import { useContext, useRef, useState } from "react";
-import { DirectionalLightHelper, MathUtils, Vector3, type DirectionalLight } from "three";
-import { DragControls, Environment, OrbitControls, useHelper, useTexture } from "@react-three/drei";
+import { useContext, useRef } from "react";
+import { MathUtils, Vector3, type DirectionalLight } from "three";
+import { Environment, OrbitControls, useTexture } from "@react-three/drei";
 import { SettingContext } from "../../contexts/SettingContext";
 import { useFrame } from "@react-three/fiber";
 import { useXRControllerButtonEvent, useXRInputSourceState, XROrigin } from "@react-three/xr";
 import { LIGHT_ALPHA, LIGHT_POSITION_RANGE } from "../../constants/SceneProps";
+import { SceneryContext } from "../../contexts/SceneryContext";
 
 export function TestScene() {
     const settingContext = useContext(SettingContext);
@@ -71,12 +72,14 @@ export function TestScene() {
 export function MenuGameScene() {
     const settingContext = useContext(SettingContext);
     if (!settingContext) return null;
-    const { draggable, viewMode } = settingContext;
+    const { viewMode } = settingContext;
+
+    const sceneryContext = useContext(SceneryContext);
+    if (!sceneryContext) return null;
+    const { time } = sceneryContext;
 
     const lightRef = useRef<DirectionalLight>(null!);
     const lightTargetPositionRef = useRef<Vector3>(new Vector3());
-
-    const [isDragging, setIsDragging] = useState(false);
 
     const rightControllerState = useXRInputSourceState("controller", "right");
 
@@ -85,8 +88,6 @@ export function MenuGameScene() {
             
         }
     });
-
-    useHelper(lightRef, DirectionalLightHelper, 2, "yellow");
 
     useFrame(({ clock }, delta) => {
         const light = lightRef.current;
@@ -100,76 +101,73 @@ export function MenuGameScene() {
         light.position.lerp(lightTargetPositionRef.current, LIGHT_ALPHA);
     });
 
-    const handleDragStart = () => setIsDragging(true);
-    const handleDragEnd = () => setIsDragging(false);
-
     return (
         <>
-            <XROrigin position={[0, 0, 2]}/>
-            <directionalLight ref={lightRef} position={[10, 10, 10]} intensity={1.5} scale={2} shadow-camera-left={-25} shadow-camera-right={25} shadow-camera-top={25} shadow-camera-bottom={-25} shadow-camera-near={0.5} shadow-camera-far={60} shadow-mapSize={[2048, 2048]} castShadow/>
-            <ambientLight position={[0, 5, 0]} intensity={1} />
+            <XROrigin position={[0, 0, 3]}/>
+            {time === "day" && (
+                <directionalLight ref={lightRef} position={[10, 10, 10]} intensity={1.5} scale={2} shadow-camera-left={-25} shadow-camera-right={25} shadow-camera-top={25} shadow-camera-bottom={-25} shadow-camera-near={0.5} shadow-camera-far={60} shadow-mapSize={[2048, 2048]} castShadow/>
+            )}
+            <ambientLight position={[0, 5, 0]} intensity={time === "day" ? 0.8 : 0.4} />
             {/* <gridHelper args={[100, 100]}/> */}
             {/* <CameraControls ref={cameraControlsRef}/> */}
             {/* <Sky/> */}
-            <OrbitControls enableRotate={!isDragging}/>
+            <OrbitControls/>
             <Physics gravity={[0, -9.81 * 3, 0]}>
-                <DragControls dragConfig={{ enabled: draggable }} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                    <group scale={viewMode === "vr" ? 2 : viewMode === "ar" ? 0.04 : 1 }>
-                        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-                            <group>
-                                <mesh position={[0, -0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-                                    <planeGeometry args={[48, 48, 128, 128]}/>
-                                    <meshStandardMaterial color={blue[500]}/>
-                                </mesh>
-                                {/* <mesh position={[0, -0.5, 0]}>
+                <group scale={viewMode === "vr" ? 3.5 : viewMode === "ar" ? 0.04 : 1}>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                        <group>
+                            <mesh position={[0, -0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+                                <planeGeometry args={[48, 48, 128, 128]} />
+                                <meshStandardMaterial color={blue[500]} />
+                            </mesh>
+                            {/* <mesh position={[0, -0.5, 0]}>
                                     <boxGeometry args={[30.5, 1, 30.5]}/>
                                     <meshStandardMaterial color={brown[700]}/>
                                 </mesh> */}
-                                
-                                <group>
-                                    <mesh position={[-14.25, -0.425, 13]} receiveShadow>
-                                        <boxGeometry args={[2, 1.05, 0.5]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                    <mesh position={[-13, -0.425, 14.25]} receiveShadow>
-                                        <boxGeometry args={[0.5, 1.05, 2]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                    <mesh position={[-12.75, -0.425, 12]} receiveShadow>
-                                        <boxGeometry args={[1, 1.05, 0.5]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                    <mesh position={[-12, -0.425, 12.75]} receiveShadow>
-                                        <boxGeometry args={[0.5, 1.05, 1]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                </group>
 
-                                <group>
-                                    <mesh position={[14.25, -0.425, -13]} receiveShadow>
-                                        <boxGeometry args={[2, 1.05, 0.5]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                    <mesh position={[13, -0.425, -14.25]} receiveShadow>
-                                        <boxGeometry args={[0.5, 1.05, 2]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                    <mesh position={[12.75, -0.425, -12]} receiveShadow>
-                                        <boxGeometry args={[1, 1.05, 0.5]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                    <mesh position={[12, -0.425, -12.75]} receiveShadow>
-                                        <boxGeometry args={[0.5, 1.05, 1]}/>
-                                        <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2}/>
-                                    </mesh>
-                                </group>
+                            <group>
+                                <mesh position={[-14.25, -0.425, 13]} receiveShadow>
+                                    <boxGeometry args={[2, 1.05, 0.5]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
+                                <mesh position={[-13, -0.425, 14.25]} receiveShadow>
+                                    <boxGeometry args={[0.5, 1.05, 2]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
+                                <mesh position={[-12.75, -0.425, 12]} receiveShadow>
+                                    <boxGeometry args={[1, 1.05, 0.5]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
+                                <mesh position={[-12, -0.425, 12.75]} receiveShadow>
+                                    <boxGeometry args={[0.5, 1.05, 1]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
                             </group>
-                        </RigidBody>
-                        {/* <Ocean/> */}
-                        <SkyDome/>
-                        <Board/>
-                    </group>
-                </DragControls>
+
+                            <group>
+                                <mesh position={[14.25, -0.425, -13]} receiveShadow>
+                                    <boxGeometry args={[2, 1.05, 0.5]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
+                                <mesh position={[13, -0.425, -14.25]} receiveShadow>
+                                    <boxGeometry args={[0.5, 1.05, 2]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
+                                <mesh position={[12.75, -0.425, -12]} receiveShadow>
+                                    <boxGeometry args={[1, 1.05, 0.5]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
+                                <mesh position={[12, -0.425, -12.75]} receiveShadow>
+                                    <boxGeometry args={[0.5, 1.05, 1]} />
+                                    <meshStandardMaterial color={grey[50]} metalness={0.7} roughness={0.2} />
+                                </mesh>
+                            </group>
+                        </group>
+                    </RigidBody>
+                    {/* <Ocean/> */}
+                    <SkyDome />
+                    <Board />
+                </group>
             </Physics>
         </>
     );

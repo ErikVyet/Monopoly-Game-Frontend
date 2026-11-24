@@ -6,11 +6,12 @@ import { MenuContext } from "../contexts/MenuContext";
 import { MenuState } from "../constants/MenuState";
 import { blue } from "@mui/material/colors";
 import { Alert, Box, IconButton, Snackbar, Tooltip } from "@mui/material";
-import { PanoramaPhotosphere, PanTool, ThreeSixty, ViewInAr } from "@mui/icons-material";
+import { DarkMode, LightMode, ThreeSixty, ViewInAr } from "@mui/icons-material";
 import { SettingContext } from "../contexts/SettingContext";
 import { ViewMode } from "../constants/ViewMode";
 import { NoToneMapping } from "three";
 import { MenuGameScene } from "../components/common/GameScene";
+import { SceneryContext } from "../contexts/SceneryContext";
 
 const store = createXRStore({
     controller: {
@@ -29,7 +30,9 @@ export default function MenuView() {
     const [viewMode, setViewMode] = useState<ViewMode>("default");
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("");
-    const [draggable, setDraggable] = useState(false);
+    const [time, setTime] = useState<"day" | "night">("day");
+
+    const trafficLightStates: Map<string, "red" | "yellow" | "green"> = new Map();
 
     const handleEnterVrMode = () => {
         navigator.xr?.isSessionSupported("immersive-vr").then(supported => {
@@ -59,7 +62,9 @@ export default function MenuView() {
             }
         });
     };
-    const handleEnableDrag = () => setDraggable(prev => !prev);
+    const handleTimeToggle = () => {
+        setTime(prev => prev === "day" ? "night" : "day");
+    };
     const handleOpenAlert = (message: string) => {
         setMessage(message);
         setOpenAlert(true);
@@ -69,13 +74,15 @@ export default function MenuView() {
     };
 
     return (
-        <SettingContext.Provider value={{ viewMode, setViewMode, draggable, setDraggable }}>
+        <SettingContext.Provider value={{ viewMode, setViewMode }}>
             <MenuContext.Provider value={{ cameraControlsRef, menuState, setMenuState }}>
                 <Box className="relative w-full h-screen!">
                     <Canvas className="h-screen! z-0" frameloop={"always"} camera={{ position: [0, 10, 15], fov: 50 }} gl={{ toneMapping: NoToneMapping }} shadows>
                         <XR store={store}>
                             {/* <TestScene/> */}
-                            <MenuGameScene/>
+                            <SceneryContext.Provider value={{ time, trafficLightStates }}>
+                                <MenuGameScene/>
+                            </SceneryContext.Provider>
                         </XR>
                     </Canvas>
                     <Loader containerStyles={{ background: "#0f172a" }} innerStyles={{ width: "300px" }} dataInterpolation={(progress) => `Loading Game Assets ${progress.toFixed(0)}%`} />
@@ -89,12 +96,12 @@ export default function MenuView() {
                             <ViewInAr className="text-zinc-100"/>
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title={`${draggable ? "Disable" : "Enable"} Drag`} arrow>
-                        <IconButton className={`absolute! top-4! right-32! z-50! bg-zinc-900/30! hover:bg-zinc-900/20! outline! outline-zinc-700!`} onClick={handleEnableDrag}>
-                            {draggable ? (
-                                <PanoramaPhotosphere className="text-zinc-100"/>
+                    <Tooltip title={time === "day" ? "Day" : "Night"} arrow>
+                        <IconButton className={`absolute! top-4! right-32! z-50! bg-zinc-900/30! hover:bg-zinc-900/20! outline! outline-zinc-700!`} onClick={handleTimeToggle}>
+                            {time === "day" ? (
+                                <LightMode className="text-zinc-100"/>
                             ) : (
-                                <PanTool className="text-zinc-100"/>
+                                <DarkMode className="text-zinc-100"/>
                             )}
                         </IconButton>
                     </Tooltip>

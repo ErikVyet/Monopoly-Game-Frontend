@@ -1,22 +1,22 @@
 import { ActiveCollisionTypes } from "@dimforge/rapier3d-compat";
 import { blue, brown, green, grey, orange, pink, red, yellow } from "@mui/material/colors";
 import { Center, Edges, Float, Image, Instance, Instances, Text, Text3D, useAnimations, useGLTF, useTexture } from "@react-three/drei";
-import { useFrame, useGraph } from "@react-three/fiber";
-import { RapierRigidBody, RigidBody, type IntersectionEnterPayload } from "@react-three/rapier";
+import { useFrame, useGraph, useThree } from "@react-three/fiber";
+import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimationClip, Euler, MathUtils, Mesh, MeshStandardMaterial, PlaneGeometry, RepeatWrapping, Vector3, type Group } from "three";
 import { Group as SpaceGroup } from "../../constants/Group";
 import { SkeletonUtils, type GLTF } from "three-stdlib";
 import { Water } from "three/examples/jsm/objects/Water.js";
 import { properties, railroads, utilities, taxes, chests, chances } from "../../assets/data/board.json";
-import { foundations, cars, buildings, others } from "../../assets/data/scenery.json";
+import { foundations, buildings, cars, others } from "../../assets/data/scenery.json";
 import { SceneryContext } from "../../contexts/SceneryContext";
 import { useSpaceHover } from "../../hooks/useSpaceHover";
-import { CAR_RUN_VECLOTIY_LAMBDA, CAR_STOP_VELOCITY_LAMBDA, CAROUSEL_SPIN_SPEED, OAK_MAX_SCALE, OAK_MIN_SCALE, PINE_MAX_SCALE, PINE_MIN_SCALE } from "../../constants/SceneProps";
+import { BIRCH_MAX_SCALE, BIRCH_MIN_SCALE, OAK_MAX_SCALE, OAK_MIN_SCALE, PINE_MAX_SCALE, PINE_MIN_SCALE } from "../../constants/SceneProps";
 import { extend } from "@react-three/fiber";
 import { Smoke } from "./Effects";
 import { type SkinnedMesh } from "three";
-import type { Bone, Object3D } from "three";
+import type { Bone, Object3D, SpotLight } from "three";
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -61,7 +61,6 @@ type OtherCommonProps = {
 
 extend({ Water });
 
-// TypeScript type augmentation (optional if using TS)
 declare module "@react-three/fiber" {
     interface ThreeElements {
         water: any
@@ -1117,81 +1116,125 @@ function PoliceCar({ initialPosition, initialRotation = [0, 0, 0] }: CarCommonPr
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
-function OrdinalSedanCar({ initialPosition, initialRotation = [0, 0, 0] }: CarCommonProps) {
-    const sceneryContext = useContext(SceneryContext);
-    if (!sceneryContext) return null;
-    const { trafficLightStates } = sceneryContext;
+// function OrdinalSedanCar({ initialPosition, initialRotation = [0, 0, 0] }: CarCommonProps) {
+//     const sceneryContext = useContext(SceneryContext);
+//     if (!sceneryContext) return null;
+//     const { trafficLightStates } = sceneryContext;
     
-    const { nodes, materials } = useGLTF("/models/cars/car-sedan.glb");
+//     const { nodes, materials } = useGLTF("/models/cars/car-sedan.glb");
 
-    const carRef = useRef<RapierRigidBody>(null!);
-    const velocityMultiplerRef = useRef(0.15);
-    const targetPositionRef = useRef<Vector3>(new Vector3());
-    // const targetAngleRef = useRef<Quaternion>(new Quaternion());
+//     const carRef = useRef<RapierRigidBody>(null!);
+//     const velocityMultiplerRef = useRef(0.15);
+//     const targetPositionRef = useRef<Vector3>(new Vector3());
+//     // const targetAngleRef = useRef<Quaternion>(new Quaternion());
 
-    const [trafficName, setTrafficName] = useState<string | null>(null);
-    const [stop, setStop] = useState(false);
-    const [velocityLambda, setVelocityLambda] = useState(CAR_RUN_VECLOTIY_LAMBDA);
+//     const [trafficName, setTrafficName] = useState<string | null>(null);
+//     const [stop, setStop] = useState(false);
+//     const [velocityLambda, setVelocityLambda] = useState(CAR_RUN_VECLOTIY_LAMBDA);
 
-    useEffect(() => {
-        if (stop) {
-            const interval = setInterval(() => {
-                const trafficLightState = trafficLightStates.get(trafficName);
-                if (trafficLightState) {
-                    if (trafficLightState === "green") {
-                        setStop(false);
-                        setTrafficName(null);
-                    }
-                }
-            }, 1000);
-            return () => { clearInterval(interval); }
-        }
-    }, [stop]);
+//     useEffect(() => {
+//         if (stop) {
+//             const interval = setInterval(() => {
+//                 const trafficLightState = trafficLightStates.get(trafficName);
+//                 if (trafficLightState) {
+//                     if (trafficLightState === "green") {
+//                         setStop(false);
+//                         setTrafficName(null);
+//                     }
+//                 }
+//             }, 1000);
+//             return () => { clearInterval(interval); }
+//         }
+//     }, [stop]);
 
-    useFrame((_, delta) => {
-        const car = carRef.current;
-        if (!car) return;
+//     useFrame((_, delta) => {
+//         const car = carRef.current;
+//         if (!car) return;
 
-        const currentPos = car.translation();
-        if (stop) {
-            const currentVel = car.linvel();
-            const targetVelX = MathUtils.damp(currentVel.x, 0, velocityLambda, delta);
-            car.setLinvel({ x: targetVelX, y: 0, z: 0 }, true);
-            velocityMultiplerRef.current = 0;
-        }
-        else {
-            targetPositionRef.current.set(-7.75, currentPos.y, currentPos.z);
-            velocityMultiplerRef.current = MathUtils.damp(velocityMultiplerRef.current, 0.15, 1, delta);
-            car.setLinvel({ x: (targetPositionRef.current.x) * velocityMultiplerRef.current, y: 0, z: 0 }, true);
-        }
-    });
+//         const currentPos = car.translation();
+//         if (stop) {
+//             const currentVel = car.linvel();
+//             const targetVelX = MathUtils.damp(currentVel.x, 0, velocityLambda, delta);
+//             car.setLinvel({ x: targetVelX, y: 0, z: 0 }, true);
+//             velocityMultiplerRef.current = 0;
+//         }
+//         else {
+//             targetPositionRef.current.set(-7.75, currentPos.y, currentPos.z);
+//             velocityMultiplerRef.current = MathUtils.damp(velocityMultiplerRef.current, 0.15, 1, delta);
+//             car.setLinvel({ x: (targetPositionRef.current.x) * velocityMultiplerRef.current, y: 0, z: 0 }, true);
+//         }
+//     });
 
-    const handleIntersectionEnter = (payload: IntersectionEnterPayload) => {
-        if (payload.other.rigidBodyObject?.name?.includes("traffic")) {
-            setTrafficName(payload.other.rigidBodyObject.name);
-            setVelocityLambda(CAR_STOP_VELOCITY_LAMBDA);
-            setStop(true);
-        }
-        else if (payload.other.rigidBodyObject?.name?.includes("car")) {
-            setVelocityLambda(CAR_STOP_VELOCITY_LAMBDA);
-            setStop(true);
-        }
-    };
+//     const handleIntersectionEnter = (payload: IntersectionEnterPayload) => {
+//         if (payload.other.rigidBodyObject?.name?.includes("traffic")) {
+//             setTrafficName(payload.other.rigidBodyObject.name);
+//             setVelocityLambda(CAR_STOP_VELOCITY_LAMBDA);
+//             setStop(true);
+//         }
+//         else if (payload.other.rigidBodyObject?.name?.includes("car")) {
+//             setVelocityLambda(CAR_STOP_VELOCITY_LAMBDA);
+//             setStop(true);
+//         }
+//     };
+
+//     return (
+//         <group position={initialPosition} rotation={initialRotation}>
+//             <RigidBody name={"car"} ref={carRef} type={"kinematicVelocity"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd sensor onIntersectionEnter={handleIntersectionEnter}>
+//                 <mesh geometry={(nodes["car_sedan_01"] as Mesh).geometry} material={materials["lowpoly"]} scale={0.2} castShadow receiveShadow/>
+//                 <mesh position={[0, 0.1, 0.5]}>
+//                     <boxGeometry args={[0.25, 0.1, 0.05]}/>
+//                     <meshStandardMaterial color={"red"} opacity={0.5} transparent/>
+//                 </mesh>
+//                 <mesh position={[0, 0.1, -0.2]}>
+//                     <boxGeometry args={[0.25, 0.1, 0.05]}/>
+//                     <meshStandardMaterial color={"red"} opacity={0.5} transparent/>
+//                 </mesh>
+//             </RigidBody>
+//         </group>
+//     );
+// }
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function CarInstances() {
+    const sedanModel = useGLTF("/models/cars/car-sedan.glb");
+    const taxiModel = useGLTF("/models/cars/metropolis-taxi.glb");
+    const pastelSedanModel = useGLTF("/models/cars/pastel-sedan.glb");
+    const suvMinivanModel = useGLTF("/models/cars/suv-minivan.glb");
+
+    const { sedans, taxies, pastelSedans, suvMinivans } = cars;
 
     return (
-        <group position={initialPosition} rotation={initialRotation}>
-            <RigidBody name={"car"} ref={carRef} type={"kinematicVelocity"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd sensor onIntersectionEnter={handleIntersectionEnter}>
-                <mesh geometry={(nodes["car_sedan_01"] as Mesh).geometry} material={materials["lowpoly"]} scale={0.2} castShadow receiveShadow/>
-                <mesh position={[0, 0.1, 0.5]}>
-                    <boxGeometry args={[0.25, 0.1, 0.05]}/>
-                    <meshStandardMaterial color={"red"} opacity={0.5} transparent/>
-                </mesh>
-                <mesh position={[0, 0.1, -0.2]}>
-                    <boxGeometry args={[0.25, 0.1, 0.05]}/>
-                    <meshStandardMaterial color={"red"} opacity={0.5} transparent/>
-                </mesh>
-            </RigidBody>
-        </group>
+        <>
+            <Instances geometry={(sedanModel.nodes["car_sedan_01"] as Mesh).geometry} material={sedanModel.materials["lowpoly"]} receiveShadow castShadow>
+                {sedans.map(({ initialPosition, initialRotation }, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`sedan-${index}`} ccd>
+                        <Instance position={initialPosition as Vector3Array} rotation={initialRotation as Vector3Array} scale={0.2}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(taxiModel.nodes["metropolis_taxi_01"] as Mesh).geometry} material={taxiModel.materials["lowpoly"]} receiveShadow castShadow>
+                {taxies.map(({ initialPosition, initialRotation }, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`taxi-${index}`} ccd>
+                        <Instance position={initialPosition as Vector3Array} rotation={initialRotation as Vector3Array} scale={0.2}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(pastelSedanModel.nodes["pastel_sedan"] as Mesh).geometry} material={pastelSedanModel.materials["lowpoly"]} receiveShadow castShadow>
+                {pastelSedans.map(({ initialPosition, initialRotation }, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`pastel-sedan-${index}`} ccd>
+                        <Instance position={initialPosition as Vector3Array} rotation={initialRotation as Vector3Array} scale={0.2}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(suvMinivanModel.nodes["suv_minivan"] as Mesh).geometry} material={suvMinivanModel.materials["lowpoly"]} receiveShadow castShadow>
+                {suvMinivans.map(({ initialPosition, initialRotation }, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`suv-minivan-${index}`} ccd>
+                        <Instance position={initialPosition as Vector3Array} rotation={initialRotation as Vector3Array} scale={0.2}/>
+                    </RigidBody>
+                )}
+            </Instances>
+        </>
     );
 }
 
@@ -1466,7 +1509,7 @@ function TrafficLight({ name, position, rotation = [0, 0, 0], duration = [15, 3,
                 <RigidBody name={name} type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
                     <mesh position={[-2.95, 1, 1.5]}>
                         <boxGeometry args={[2, 1, 3]}/>
-                        <meshStandardMaterial color={"black"} opacity={0.5} transparent/>
+                        <meshStandardMaterial color={"black"} opacity={0} transparent/>
                     </mesh>
                 </RigidBody>
             )}
@@ -1524,46 +1567,84 @@ type GLTFGoldenTrophyStatueResult = GLTF & {
 }
 
 function GoldenTrophyStatue(props: OtherCommonProps) {
+    const sceneryContext = useContext(SceneryContext);
+    if (!sceneryContext) return null;
+    const { time } = sceneryContext;
+    
     const { nodes } = useGLTF('/models/others/golden-trophy.glb') as unknown as GLTFGoldenTrophyStatueResult;
+    const spotLightModel = useGLTF("/models/others/spotlight.glb");
+
+    const { spotLights } = others;
+
+    const statueRef = useRef<Group>(null!);
+    const spotLightRefs = useRef<(SpotLight | null)[]>([]);
+
+    useFrame(() => {
+        const statue = statueRef.current;
+        if (!statue) return;
+
+        for (let i = 0; i < spotLightRefs.current.length; i++) {
+            const spotLight = spotLightRefs.current[i];
+            if (!spotLight) continue;
+
+            spotLight.target = statue;
+            spotLight.updateMatrix();
+        }
+    });
+    
     return (
-        <RigidBody type={"fixed"} colliders={"hull"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
-            <group {...props}>
-                <group position={[0, 1, 0]} scale={0.4} dispose={null}>
-                    <mesh geometry={nodes.Trophy_Material001_0.geometry} castShadow receiveShadow>
-                        <meshPhysicalMaterial color={yellow[500]} emissive={yellow[800]} emissiveIntensity={0.8} metalness={0.5} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
-                    </mesh>
-                    <mesh geometry={nodes.Trophy_Material002_0.geometry} castShadow receiveShadow>
-                        <meshPhysicalMaterial color={grey[100]} emissive={grey[400]} emissiveIntensity={0.8} metalness={0.2} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
-                    </mesh>
+        <>
+            <RigidBody type={"fixed"} colliders={"hull"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                <group {...props}>
+                    <group ref={statueRef} position={[0, 1, 0]} scale={0.4} dispose={null}>
+                        <mesh geometry={nodes.Trophy_Material001_0.geometry} castShadow receiveShadow>
+                            <meshPhysicalMaterial color={yellow[500]} emissive={yellow[800]} emissiveIntensity={0.8} metalness={0.5} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
+                        </mesh>
+                        <mesh geometry={nodes.Trophy_Material002_0.geometry} castShadow receiveShadow>
+                            <meshPhysicalMaterial color={grey[100]} emissive={grey[400]} emissiveIntensity={0.8} metalness={0.2} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
+                        </mesh>
+                    </group>
+                    <group position={[0, 0.16, 0]}>
+                        <mesh position={[0, 0.7, 0]} castShadow receiveShadow>
+                            <boxGeometry args={[1.25, 0.12, 1.25]}/>
+                            <meshPhysicalMaterial color={grey[100]} roughness={1}/>
+                        </mesh>
+                        <mesh position={[0, 0.44, 0]} castShadow receiveShadow>
+                            <boxGeometry args={[1, 0.78, 1]}/>
+                            <meshPhysicalMaterial color={grey[100]} roughness={1}/>
+                            <Center disableY disableZ>
+                                <Text3D font={"/fonts/Fredoka-Regular.json"} position={[0, -0.05, 0.5]} scale={0.08} receiveShadow>
+                                    {"Golden Trophy"}
+                                    <meshPhysicalMaterial color={yellow[600]} emissive={yellow[500]} emissiveIntensity={0.8} metalness={0.8} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
+                                </Text3D>
+                            </Center>
+                            <Center disableY disableZ>
+                                <Text3D font={"/fonts/Fredoka-Regular.json"} position={[0, -0.2, 0.5]} scale={0.08} receiveShadow>
+                                    {"07/11/2026"}
+                                    <meshPhysicalMaterial color={yellow[600]} emissive={yellow[500]} emissiveIntensity={0.8} metalness={0.8} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
+                                </Text3D>
+                            </Center>
+                        </mesh>
+                        <mesh position={[0, 0, 0]} castShadow receiveShadow>
+                            <boxGeometry args={[1.5, 0.12, 1.5]}/>
+                            <meshPhysicalMaterial color={grey[100]} roughness={1}/>
+                        </mesh>
+                    </group>
                 </group>
-                <group position={[0, 0.16, 0]}>
-                    <mesh position={[0, 0.7, 0]} castShadow receiveShadow>
-                        <boxGeometry args={[1.25, 0.12, 1.25]}/>
-                        <meshPhysicalMaterial color={grey[100]} clearcoatRoughness={0.1} clearcoat={1} roughness={0.2}/>
-                    </mesh>
-                    <mesh position={[0, 0.44, 0]} castShadow receiveShadow>
-                        <boxGeometry args={[1, 0.78, 1]}/>
-                        <meshPhysicalMaterial color={grey[100]} clearcoatRoughness={0.1} clearcoat={1} roughness={0.2}/>
-                        <Center disableY disableZ>
-                            <Text3D font={"/fonts/Fredoka-Regular.json"} position={[0, -0.05, 0.5]} scale={0.08} receiveShadow>
-                                {"Golden Trophy"}
-                                <meshPhysicalMaterial color={yellow[600]} emissive={yellow[500]} emissiveIntensity={0.8} metalness={0.8} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
-                            </Text3D>
-                        </Center>
-                        <Center disableY disableZ>
-                            <Text3D font={"/fonts/Fredoka-Regular.json"} position={[0, -0.2, 0.5]} scale={0.08} receiveShadow>
-                                {"07/11/2026"}
-                                <meshPhysicalMaterial color={yellow[600]} emissive={yellow[500]} emissiveIntensity={0.8} metalness={0.8} roughness={0.2} anisotropy={0.8} thickness={0.5} ior={2}/>
-                            </Text3D>
-                        </Center>
-                    </mesh>
-                    <mesh position={[0, 0, 0]} castShadow receiveShadow>
-                        <boxGeometry args={[1.5, 0.12, 1.5]}/>
-                        <meshPhysicalMaterial color={grey[100]} clearcoatRoughness={0.1} clearcoat={1} roughness={0.2}/>
-                    </mesh>
-                </group>
-            </group>
-        </RigidBody>
+            </RigidBody>
+            <Instances geometry={(spotLightModel.nodes["polySurface1_lambert1_0"] as Mesh).geometry} material={spotLightModel.materials["lambert1"]} receiveShadow castShadow>
+                {spotLights.map(({ position, rotation }, index) =>
+                    <group position={position as Vector3Array} rotation={[0, rotation[1], 0]} key={`spot-light-${index}`}>
+                        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                            <Instance rotation={[rotation[0], 0, rotation[2]]} scale={0.004}/>
+                        </RigidBody>
+                        {time === "night" && (
+                            <spotLight ref={(spotLightRef) => { spotLightRefs.current.push(spotLightRef); }} intensity={20} distance={4} angle={0.45} penumbra={0.5} position={[0, 0.02, 0.02]}/>
+                        )}
+                    </group>
+                )}
+            </Instances>
+        </>
     )
 }
 
@@ -1592,8 +1673,9 @@ function WildTreeInstances() {
     const fernModel = useGLTF("/models/others/fern.glb");
     const oakModel = useGLTF("/models/others/oak.glb");
     const pineModel = useGLTF("/models/others/pine.glb");
+    const birchModel = useGLTF("/models/others/birch-tree.glb");
 
-    const { bushes, ferns, oaks, pines } = others;
+    const { bushes, ferns, oaks, pines, birches } = others;
 
     const oakScales = useMemo(() => {
         const scales = new Float32Array(oaks.length);
@@ -1611,33 +1693,76 @@ function WildTreeInstances() {
         return scales;
     }, [pines, pineModel]);
 
+    const birchScales = useMemo(() => {
+        const scales = new Float32Array(birches.length);
+        for (let i = 0; i < birches.length; i++) {
+            scales[i] = MathUtils.randFloat(BIRCH_MIN_SCALE, BIRCH_MAX_SCALE);
+        }
+        return scales;
+    }, [birchModel]);
+
     return (
         <>
             <Instances geometry={(bushModel.nodes["bush"] as Mesh).geometry} material={bushModel.materials["lowpoly"]} receiveShadow castShadow>
-                {bushes.map((bush, index) =>
+                {bushes.map(({ position, rotation }, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`bush-${index}`} ccd>
-                        <Instance position={bush.position as Vector3Array} rotation={bush.rotation as Vector3Array} scale={0.25}/>
+                        <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
                     </RigidBody>
                 )}
             </Instances>
             <Instances geometry={(fernModel.nodes["fern"] as Mesh).geometry} material={fernModel.materials["lowpoly"]} receiveShadow castShadow>
-                {ferns.map((fern, index) =>
+                {ferns.map(({ position, rotation }, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`fern-${index}`} ccd>
-                        <Instance position={fern.position as Vector3Array} rotation={fern.rotation as Vector3Array} scale={0.25}/>
+                        <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
                     </RigidBody>
                 )}
             </Instances>
             <Instances geometry={(pineModel.nodes["pine"] as Mesh).geometry} material={pineModel.materials["lowpoly"]} receiveShadow castShadow>
-                {pines.map((pine, index) =>
+                {pines.map(({ position, rotation }, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`pine-${index}`} ccd>
-                        <Instance position={pine.position as Vector3Array} rotation={pine.rotation as Vector3Array} scale={pineScales[index]}/>
+                        <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={pineScales[index]}/>
                     </RigidBody>
                 )}
             </Instances>
             <Instances geometry={(oakModel.nodes["oak"] as Mesh).geometry} material={oakModel.materials["lowpoly"]} receiveShadow castShadow>
-                {oaks.map((oak, index) =>
+                {oaks.map(({ position, rotation }, index) =>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`oak-${index}`} ccd>
-                        <Instance position={oak.position as Vector3Array} rotation={oak.rotation as Vector3Array} scale={oakScales[index]}/>
+                        <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={oakScales[index]}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(birchModel.nodes["birch_tree"] as Mesh).geometry} material={birchModel.materials["lowpoly"]} receiveShadow castShadow>
+                {birches.map(({ position, rotation }, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`birch-${index}`} ccd>
+                        <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={birchScales[index]}/>
+                    </RigidBody>
+                )}
+            </Instances>
+        </>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function GraniteInstances() {
+    const boulderModel = useGLTF("/models/others/lichen-granite-boulder.glb");
+    const rockModel = useGLTF("/models/others/granite-rock-cluster.glb");
+
+    const { lichenGraniteBoulders, graniteRockClusters } = others;
+
+    return (
+        <>
+            <Instances geometry={(boulderModel.nodes["lichen_granite_boulder"] as Mesh).geometry} material={boulderModel.materials["lowpoly"]} receiveShadow castShadow>
+                {lichenGraniteBoulders.map(({ position, rotation }, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`lichen-granite-boulder-${index}`} ccd>
+                        <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                    </RigidBody>
+                )}
+            </Instances>
+            <Instances geometry={(rockModel.nodes["granite_rock_cluster"] as Mesh).geometry} material={rockModel.materials["lowpoly"]} receiveShadow castShadow>
+                {graniteRockClusters.map(({ position, rotation }, index) =>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`granite-rock-cluster-${index}`} ccd>
+                        <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
                     </RigidBody>
                 )}
             </Instances>
@@ -1744,13 +1869,14 @@ function CarouselInstances() {
 
     const instanceRefs = useRef<(Object3D | null)[]>([]);
 
-    useFrame((_, delta) => {
+    useFrame((_, _delta) => {
         for (let i = 0; i < instanceRefs.current.length; i++) {
             const instance = instanceRefs.current[i];
             if (!instance) continue;
 
             const currentY = instance.rotation.y;
-            const targetY = MathUtils.lerp(currentY, currentY + 0.1, 1 - Math.exp(-CAROUSEL_SPIN_SPEED * delta));
+            // const targetY = MathUtils.lerp(currentY, currentY + 0.1, 1 - Math.exp(-CAROUSEL_SPIN_SPEED * _delta));
+            const targetY = currentY + 0.0001;
 
             instance.rotation.y = targetY;
         }
@@ -1886,7 +2012,7 @@ function LitterBinInstances() {
         <Instances geometry={(nodes["litter_bin"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {litterBins.map(({ position, rotation }, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`litter-bin-${index}`} ccd>
-                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.2}/>
                 </RigidBody>
             )}
         </Instances>
@@ -1904,7 +2030,213 @@ function FairgroundParkBenchInstances() {
         <Instances geometry={(nodes["park_bench"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
             {fairgroundParkBenches.map(({ position, rotation }, index) =>
                 <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`fairground-park-bench-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.225}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function ParkBenchInstances() {
+    const { nodes, materials } = useGLTF("/models/others/park-bench.glb");
+
+    const { parkBenches } = others;
+
+    return (
+        <Instances geometry={(nodes["park_bench_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {parkBenches.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`park-bench-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.225}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function ParkLampInstances() {
+    const sceneryContext = useContext(SceneryContext);
+    if (!sceneryContext) return null;
+    const { time } = sceneryContext;
+
+    const { nodes, materials } = useGLTF("/models/others/park-lamp.glb");
+
+    const { parkLamps } = others;
+
+    const targetsRef = useRef<(Mesh | null)[]>([]);
+    const spotLightsRef = useRef<(SpotLight | null)[]>([]);
+
+    useEffect(() => {
+        if (time === "day") return;
+
+        for (let i = 0; i < targetsRef.current.length; i++) {
+            const target = targetsRef.current[i];
+            const spotLight = spotLightsRef.current[i];
+            if (!target || !spotLight) continue;
+
+            spotLight.target = target;
+            spotLight.updateMatrix();
+        }
+    }, [targetsRef.current, spotLightsRef.current, time]);
+
+    return (
+        <Instances geometry={(nodes["streetlamp"] as Mesh).geometry} material={materials["lowpoly"]} castShadow receiveShadow>
+            {parkLamps.map(({ position, rotation }, index) =>
+                <group position={position as Vector3Array} key={`park-lamp-${index}`}>
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+                        <Instance rotation={rotation as Vector3Array} scale={0.25}/>
+                    </RigidBody>
+                    {time === "night" && (
+                        <group rotation={rotation as Vector3Array}>
+                            <mesh ref={(targetRef) => { targetsRef.current.push(targetRef); }} position={[0, 0, 0.15]}>
+                                <boxGeometry args={[0.1, 0.1, 0.1]}/>
+                                <meshStandardMaterial opacity={0} transparent/>
+                            </mesh>
+                            <spotLight ref={(spotLightRef) => { spotLightsRef.current.push(spotLightRef); }} intensity={6} distance={1.5} angle={Math.PI / 4} penumbra={0.1} position={[0, 1.1, 0.15]}/>
+                        </group>
+                    )}
+                </group>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function StreetLampInstances() {
+    const sceneryContext = useContext(SceneryContext);
+    if (!sceneryContext) return null;
+    const { time } = sceneryContext;
+
+    const { nodes, materials } = useGLTF("/models/others/street-lamp.glb");
+
+    const { streetLamps } = others;
+
+    const targetsRef = useRef<(Mesh | null)[]>([]);
+    const spotLightsRef = useRef<(SpotLight | null)[]>([]);
+
+    useEffect(() => {
+        if (time === "day") return;
+
+        for (let i = 0; i < spotLightsRef.current.length; i++) {
+            const spotLight = spotLightsRef.current[i];
+            const target = targetsRef.current[i];
+            if (!spotLight || !target) continue;
+
+            spotLight.target = target;
+            spotLight.updateMatrix();
+        }
+    }, [targetsRef.current, spotLightsRef.current, time]);
+
+    return (
+        <Instances geometry={(nodes["street_lamp_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {streetLamps.map(({ position, rotation }, index) =>
+                <group position={position as Vector3Array} >
+                    <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`street-lamp-${index}`} ccd>
+                        <Instance rotation={rotation as Vector3Array} scale={0.25}/>
+                    </RigidBody>
+                    {time === "night" && (
+                        <group rotation={rotation as Vector3Array}>
+                            <mesh ref={(target) => { targetsRef.current.push(target); }} position={[0.3, 0, 0]}>
+                                <boxGeometry args={[0.1, 0.1, 0.1]} />
+                                <meshStandardMaterial opacity={0} transparent />
+                            </mesh>
+                            <spotLight ref={(spotLight) => { spotLightsRef.current.push(spotLight); }} position={[0, 1.1, 0]} intensity={6} distance={2} angle={Math.PI / 3} penumbra={0.5}/>
+                        </group>
+                    )}
+                </group>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function StreetTreeInstances() {
+    const { nodes, materials } = useGLTF("/models/others/street-tree.glb");
+
+    const { streetTrees } = others;
+
+    return (
+        <Instances geometry={(nodes["street_tree_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {streetTrees.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`street-tree-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.2}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function BusShelterInstances() {
+    const { nodes, materials } = useGLTF("/models/others/bus-shelter.glb");
+
+    const { busShelters } = others;
+
+    return (
+        <Instances geometry={(nodes["bus_shelter_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {busShelters.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`bus-shelter-${index}`} ccd>
                     <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.25}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function BenchInstances() {
+    const { nodes, materials } = useGLTF("/models/others/bench.glb");
+
+    const { benches } = others;
+
+    return (
+        <Instances geometry={(nodes["bench_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {benches.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`bench-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.225}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function FireHydrantInstances() {
+    const { nodes, materials } = useGLTF("/models/others/fire-hydrant.glb");
+
+    const { fireHydrants } = others;
+
+    return (
+        <Instances geometry={(nodes["fire_hydrant"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {fireHydrants.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`fire-hydrant-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.15}/>
+                </RigidBody>
+            )}
+        </Instances>
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+function TrashBinInstances() {
+    const { nodes, materials } = useGLTF("/models/others/trash-bin.glb");
+
+    const { trashBins } = others;
+
+    return (
+        <Instances geometry={(nodes["trash_bin_01"] as Mesh).geometry} material={materials["lowpoly"]} receiveShadow castShadow>
+            {trashBins.map(({ position, rotation }, index) =>
+                <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} key={`trash-bin-${index}`} ccd>
+                    <Instance position={position as Vector3Array} rotation={rotation as Vector3Array} scale={0.15}/>
                 </RigidBody>
             )}
         </Instances>
@@ -2887,12 +3219,27 @@ function PropertySpace(props: SpaceCommonProps & PropertySpaceProps) {
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 export function Board() {
-    const trafficLightStates: Map<string, "red" | "yellow" | "green"> = new Map();
-
     const { basketballPlaygrounds, campsites, docks } = others;
 
+    const { gl } = useThree();
+
+    const [polies, setPolies] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const { triangles } = gl.info.render;
+            setPolies(triangles);
+        }, 1000);
+
+        return () => { clearInterval(interval); }
+    }, [gl]);
+
     return (
-        <SceneryContext.Provider value={{ trafficLightStates }}>
+        <>
+            <Center position={[-5, 0.1, 4.5]}>
+                <Text3D  rotation={[-Math.PI / 2, 0, 0]} font={"/fonts/Fredoka-Regular.json"} size={0.3} height={0.05}>Total Polies: {polies}</Text3D>
+            </Center>
+
             <GoSpace/>
             <JailSpace/>
             <FreeParkingSpace/>
@@ -2965,11 +3312,10 @@ export function Board() {
             <PorchHouseFrontInstances/>
             <TurfDwellingInstances/>
 
-            {cars.ordinalSedan.map((ordinalSedan, index) =>
-                <OrdinalSedanCar initialPosition={ordinalSedan.initialPosition as Vector3Array} initialRotation={ordinalSedan.initialRotation as Vector3Array} key={`car-${index}`}/>
-            )}
+            <CarInstances/>
 
             <WildTreeInstances/>
+            <GraniteInstances/>
             <HotAirBalloon/>
             <GoldenTrophyStatue position={[0, 0, 0]}/>
             {basketballPlaygrounds.map((basketballPlayground, index) =>
@@ -2998,7 +3344,16 @@ export function Board() {
             <LitterBinInstances/>
             <FairgroundParkBenchInstances/>
 
-        </SceneryContext.Provider>
+            <ParkBenchInstances/>
+            <ParkLampInstances/>
+
+            <StreetLampInstances/>
+            <StreetTreeInstances/>
+            <BusShelterInstances/>
+            <BenchInstances/>
+            <FireHydrantInstances/>
+            <TrashBinInstances/>
+        </>
     );
 }
 
@@ -3054,7 +3409,6 @@ useGLTF.preload("/models/foundations/road-midway-t.glb");
 useGLTF.preload("/models/foundations/road-straight.glb");
 useGLTF.preload("/models/foundations/road-t-junction.glb");
 useGLTF.preload("/models/foundations/sidewalk.glb");
-useGLTF.preload("/models/others/autumn-maple.glb");
 useGLTF.preload("/models/others/balloon-cart.glb");
 useGLTF.preload("/models/others/basketball-hoop.glb");
 useGLTF.preload("/models/others/bench.glb");
@@ -3098,12 +3452,11 @@ useGLTF.preload("/models/others/sky-day-dome.glb");
 useGLTF.preload("/models/others/split-rail-fence.glb");
 useGLTF.preload("/models/others/stone-ring-campfire.glb");
 useGLTF.preload("/models/others/street-lamp.glb");
-useGLTF.preload("/models/others/street-stop-sign.glb");
 useGLTF.preload("/models/others/street-tree.glb");
 useGLTF.preload("/models/others/string-light-strand.glb");
 useGLTF.preload("/models/others/traffic-light.glb");
 useGLTF.preload("/models/others/transmission-tower.glb");
 useGLTF.preload("/models/others/trash-bin.glb");
 useGLTF.preload("/models/others/water-tower.glb");
-useGLTF.preload("/models/others/wheelie-bins.glb");
 useGLTF.preload("/models/others/fairground-park-bench.glb");
+useGLTF.preload("/models/others/park-lamp.glb");
