@@ -2,9 +2,9 @@ import { blue, grey } from "@mui/material/colors";
 import { Board, SkyDome } from "./Models";
 import { Physics, RigidBody } from "@react-three/rapier";
 import { ActiveCollisionTypes } from "@dimforge/rapier3d-compat";
-import { useContext, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { MathUtils, Vector3, type DirectionalLight } from "three";
-import { Environment, OrbitControls, useTexture } from "@react-three/drei";
+import { CameraControls, CameraControlsImpl, Environment, OrbitControls, useTexture } from "@react-three/drei";
 import { SettingContext } from "../../contexts/SettingContext";
 import { useFrame } from "@react-three/fiber";
 import { useXRControllerButtonEvent, useXRInputSourceState, XROrigin } from "@react-three/xr";
@@ -78,6 +78,7 @@ export function MenuGameScene() {
     if (!sceneryContext) return null;
     const { time } = sceneryContext;
 
+    const cameraControlsRef = useRef<CameraControlsImpl>(null!);
     const lightRef = useRef<DirectionalLight>(null!);
     const lightTargetPositionRef = useRef<Vector3>(new Vector3());
 
@@ -88,6 +89,13 @@ export function MenuGameScene() {
             
         }
     });
+
+    useEffect(() => {
+        const cameraControls = cameraControlsRef.current;
+        if (!cameraControls) return;
+
+        cameraControls.setLookAt(-4.5, 1.75, 6.5, -4.5, 1.75, 3.75, true);
+    }, [cameraControlsRef.current]);
 
     useFrame(({ clock }, delta) => {
         const light = lightRef.current;
@@ -108,10 +116,8 @@ export function MenuGameScene() {
                 <directionalLight ref={lightRef} position={[10, 10, 10]} intensity={1.5} scale={2} shadow-camera-left={-25} shadow-camera-right={25} shadow-camera-top={25} shadow-camera-bottom={-25} shadow-camera-near={0.5} shadow-camera-far={60} shadow-mapSize={[2048, 2048]} castShadow/>
             )}
             <ambientLight position={[0, 5, 0]} intensity={time === "day" ? 0.8 : 0.4} />
-            {/* <gridHelper args={[100, 100]}/> */}
-            {/* <CameraControls ref={cameraControlsRef}/> */}
+            <CameraControls ref={cameraControlsRef} enabled={false} makeDefault/>
             {/* <Sky/> */}
-            <OrbitControls/>
             <Physics gravity={[0, -9.81 * 3, 0]}>
                 <group scale={viewMode === "vr" ? 3.5 : viewMode === "ar" ? 0.04 : 1}>
                     <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>

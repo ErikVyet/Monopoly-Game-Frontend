@@ -1,7 +1,7 @@
 import { ActiveCollisionTypes } from "@dimforge/rapier3d-compat";
 import { blue, brown, green, grey, orange, pink, red, yellow } from "@mui/material/colors";
 import { Center, Edges, Float, Image, Instance, Instances, Text, Text3D, useAnimations, useGLTF, useTexture } from "@react-three/drei";
-import { useFrame, useGraph, useThree } from "@react-three/fiber";
+import { useFrame, useGraph } from "@react-three/fiber";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimationClip, Euler, MathUtils, Mesh, MeshStandardMaterial, PlaneGeometry, RepeatWrapping, Vector3, type Group } from "three";
@@ -71,8 +71,8 @@ export function Ocean() {
     const ref = useRef<Water>(null!);
 
     // Load a normal map for the water ripples 
-    // (Three.js examples usually use 'waternormals.jpg')
-    const waterTexture = useTexture("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/waternormals.jpg");
+    // (js examples usually use 'waternormals.jpg')
+    const waterTexture = useTexture("https://raw.githubusercontent.com/mrdoob/js/master/examples/textures/waternormals.jpg");
 
     waterTexture.wrapS = waterTexture.wrapT = RepeatWrapping;
 
@@ -1445,7 +1445,7 @@ function TrafficLight({ name, position, rotation = [0, 0, 0], duration = [15, 3,
     }, []);
 
     useEffect(() => {
-        trafficLightStates.set(name, light);
+        trafficLightStates.set(name as string, light);
     }, [light]);
 
     return (
@@ -1799,7 +1799,7 @@ export function ClownFish(props: OtherCommonProps) {
     const { actions } = useAnimations(animations, fishRef);
 
     useEffect(() => {
-        actions["idle"].fadeIn(0.75).play();
+        actions["idle"]?.fadeIn(0.75).play();
     }, [scene]);
 
     return (
@@ -3218,27 +3218,64 @@ function PropertySpace(props: SpaceCommonProps & PropertySpaceProps) {
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
+type GLTFBillboardResult = GLTF & {
+    nodes: {
+        Object_4: Mesh
+        Object_6: Mesh
+        Object_8: Mesh
+        Object_10: Mesh
+        Object_12: Mesh
+        Object_14: Mesh
+    }
+    materials: {
+        ['Material.002']: MeshStandardMaterial
+        ['bb_trim.002']: MeshStandardMaterial
+        bb_trim: MeshStandardMaterial
+    }
+}
+
+function MenuBillboard() {
+    const { nodes, materials } = useGLTF("/models/others/billboard.glb") as unknown as GLTFBillboardResult;
+    
+    return (
+        <RigidBody type={"fixed"} colliders={"cuboid"} activeCollisionTypes={ActiveCollisionTypes.ALL} ccd>
+            <group position={[-4.25, 0.19, 3.5]} scale={0.25} dispose={null}>
+                <mesh geometry={nodes.Object_4.geometry} material={materials['Material.002']} position={[-0.844, 6.326, 4.407]} rotation={[1.574, 0, 0]} scale={[3.69, 8.086, 2.076]} castShadow/>
+                <mesh geometry={nodes.Object_6.geometry} material={materials['bb_trim.002']} position={[-0.829, 2.057, 4.208]} scale={[0.216, 2.209, 0.216]} castShadow/>
+                <mesh geometry={nodes.Object_8.geometry} material={materials.bb_trim} position={[-0.907, 4.247, 4.89]} castShadow/>
+                <mesh geometry={nodes.Object_10.geometry} material={materials['bb_trim.002']} position={[-0.859, 6.339, 4.24]} rotation={[1.574, 0, -Math.PI]} scale={[1, 2.468, 1]} castShadow/>
+                <mesh geometry={nodes.Object_12.geometry} material={materials['bb_trim.002']} position={[2.401, 4.367, 4.804]} scale={2.1} castShadow/>
+                <mesh geometry={nodes.Object_14.geometry} material={materials['bb_trim.002']} position={[2.892, 1.64, 4.669]} rotation={[0, 1.563, -1.549]} scale={0.634} castShadow/>
+            </group>
+        </RigidBody>
+    )
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
 export function Board() {
     const { basketballPlaygrounds, campsites, docks } = others;
 
-    const { gl } = useThree();
+    // const { gl } = useThree();
 
-    const [polies, setPolies] = useState(0);
+    // const [polies, setPolies] = useState(0);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const { triangles } = gl.info.render;
-            setPolies(triangles);
-        }, 1000);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         const { triangles } = gl.info.render;
+    //         setPolies(triangles);
+    //     }, 1000);
 
-        return () => { clearInterval(interval); }
-    }, [gl]);
+    //     return () => { clearInterval(interval); }
+    // }, [gl]);
 
     return (
         <>
-            <Center position={[-5, 0.1, 4.5]}>
+            {/* <Center position={[-5, 0.1, 6]}>
                 <Text3D  rotation={[-Math.PI / 2, 0, 0]} font={"/fonts/Fredoka-Regular.json"} size={0.3} height={0.05}>Total Polies: {polies}</Text3D>
-            </Center>
+            </Center> */}
+
+            <MenuBillboard/>
 
             <GoSpace/>
             <JailSpace/>
